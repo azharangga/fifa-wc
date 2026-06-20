@@ -7,7 +7,7 @@ import { organizeGroups } from "@/lib/data";
 import { PageTransition } from "@/components/layout/page-transition";
 import { ThirdPlaceRanking } from "@/components/standing/third-place-ranking";
 import { useWorldCupData } from "@/hooks/use-world-cup-data";
-import { LoadingState } from "@/components/layout/loading-state";
+import { GroupTableSkeleton, ThirdPlaceRankingSkeleton } from "@/components/layout/loading-state";
 import { ErrorState } from "@/components/layout/error-state";
 import { useTranslation } from "@/components/layout/language-provider";
 
@@ -41,11 +41,7 @@ export default function GroupsPage() {
     return thirdPlaceStandings.slice(0, 8).map((t) => t.team);
   }, [thirdPlaceStandings]);
 
-  if (loading) {
-    return <LoadingState message={t("home") === "Beranda" ? "Memuat klasemen grup..." : "Loading group standings..."} />;
-  }
-
-  if (error || !data) {
+  if (error || (!loading && !data)) {
     return <ErrorState error={error || (t("home") === "Beranda" ? "Gagal memuat data" : "Failed to load data")} />;
   }
 
@@ -79,21 +75,31 @@ export default function GroupsPage() {
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2">
-          {groups.map((group) => (
-            <div
-              key={group.name}
-              id={`group-${group.name.replace("Group ", "").toLowerCase()}`}
-              className="scroll-mt-24"
-            >
-              <GroupTable
-                group={group}
-                qualifyingThirds={qualifyingThirdNames}
-              />
-            </div>
-          ))}
+          {loading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <GroupTableSkeleton key={i} />
+            ))
+          ) : (
+            groups.map((group) => (
+              <div
+                key={group.name}
+                id={`group-${group.name.replace("Group ", "").toLowerCase()}`}
+                className="scroll-mt-24"
+              >
+                <GroupTable
+                  group={group}
+                  qualifyingThirds={qualifyingThirdNames}
+                />
+              </div>
+            ))
+          )}
         </div>
 
-        <ThirdPlaceRanking thirdPlaceStandings={thirdPlaceStandings} />
+        {loading ? (
+          <ThirdPlaceRankingSkeleton />
+        ) : (
+          <ThirdPlaceRanking thirdPlaceStandings={thirdPlaceStandings} />
+        )}
       </div>
     </PageTransition>
   );

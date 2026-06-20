@@ -233,7 +233,7 @@ export function MatchCard({ match }: { match: Match }) {
                       {isId ? "+1 hari" : "next day"}
                     </span>
                   )}
-                  <span style={{ color: "var(--hairline-soft)" }}>•</span>
+                  <span style={{ opacity: 0.6 }}>•</span>
                   <Clock className="h-3.5 w-3.5" />
                   <span>{converted.time}</span>
                 </>

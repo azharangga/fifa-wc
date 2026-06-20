@@ -3,15 +3,17 @@
 import { useState, useMemo } from "react";
 import { Trophy, Calendar, MapPin, Eye, LayoutGrid, List, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { Match, KnockoutRound } from "@/lib/types";
+import { Match, KnockoutRound, Score } from "@/lib/types";
 import { getCountryFlagUrl, getMatchStatus, formatDate, convertTimeToUserTimezone } from "@/lib/data";
 import { useTranslation } from "../layout/language-provider";
+import { ShimmerStyle } from "../layout/loading-state";
 
 interface BracketMatchCardProps {
   match: Match;
   hoveredTeam: string | null;
   setHoveredTeam: (team: string | null) => void;
   isRightWing?: boolean;
+  loading?: boolean;
 }
 
 function ShieldIcon({ className }: { className?: string }) {
@@ -43,7 +45,37 @@ function BracketMatchCard({
   hoveredTeam,
   setHoveredTeam,
   isRightWing = false,
+  loading = false,
 }: BracketMatchCardProps) {
+  if (loading) {
+    return (
+      <div
+        className="w-[200px] relative p-3 shrink-0 select-none"
+        style={{
+          backgroundColor: "var(--card)",
+          border: "1px solid var(--border)",
+          borderRadius: "14px",
+          height: "98px",
+        }}
+      >
+        <ShimmerStyle />
+        <div className="flex justify-between items-center mb-2">
+          <div className="w-16 h-3 rounded shimmer-bg opacity-40" />
+          <div className="w-8 h-3 rounded shimmer-bg opacity-30" />
+        </div>
+        <div className="space-y-1.5 pt-1">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-3.5 rounded shimmer-bg opacity-20" />
+            <div className="w-20 h-3.5 rounded shimmer-bg" />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-3.5 rounded shimmer-bg opacity-20" />
+            <div className="w-16 h-3.5 rounded shimmer-bg" />
+          </div>
+        </div>
+      </div>
+    );
+  }
   const flag1 = getCountryFlagUrl(match.team1);
   const flag2 = getCountryFlagUrl(match.team2);
   const status = getMatchStatus(match);
@@ -196,19 +228,57 @@ function BracketMatchCard({
   );
 }
 
-export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
+export function KnockoutBracket({ knockouts, loading = false }: { knockouts: KnockoutRound[]; loading?: boolean }) {
   const [hoveredTeam, setHoveredTeam] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"bracket" | "list">("bracket");
   const { t, lang } = useTranslation();
   const isId = lang === "id";
 
+  const mockMatches = (count: number) => {
+    return Array.from({ length: count }).map((_, i) => ({
+      id: `mock-${i}`,
+      team1: "—",
+      team2: "—",
+      date: "2026-06-20",
+      time: "18:00",
+      ground: "Stadium",
+      hostCity: "City",
+      group: "",
+      round: "",
+      score: { ft: [0, 0], ht: [0, 0] } as Score,
+    } as Match));
+  };
+
   // Extract individual rounds for symmetric positioning
-  const r32 = useMemo(() => knockouts.find((r) => r.name === "Round of 32")?.matches || [], [knockouts]);
-  const r16 = useMemo(() => knockouts.find((r) => r.name === "Round of 16")?.matches || [], [knockouts]);
-  const qf = useMemo(() => knockouts.find((r) => r.name === "Quarter-final")?.matches || [], [knockouts]);
-  const sf = useMemo(() => knockouts.find((r) => r.name === "Semi-final")?.matches || [], [knockouts]);
-  const final = useMemo(() => knockouts.find((r) => r.name === "Final")?.matches || [], [knockouts]);
-  const thirdPlace = useMemo(() => knockouts.find((r) => r.name === "Match for third place")?.matches || [], [knockouts]);
+  const r32 = useMemo(() => {
+    if (loading) return mockMatches(16);
+    return knockouts.find((r) => r.name === "Round of 32")?.matches || [];
+  }, [knockouts, loading]);
+
+  const r16 = useMemo(() => {
+    if (loading) return mockMatches(8);
+    return knockouts.find((r) => r.name === "Round of 16")?.matches || [];
+  }, [knockouts, loading]);
+
+  const qf = useMemo(() => {
+    if (loading) return mockMatches(4);
+    return knockouts.find((r) => r.name === "Quarter-final")?.matches || [];
+  }, [knockouts, loading]);
+
+  const sf = useMemo(() => {
+    if (loading) return mockMatches(2);
+    return knockouts.find((r) => r.name === "Semi-final")?.matches || [];
+  }, [knockouts, loading]);
+
+  const final = useMemo(() => {
+    if (loading) return mockMatches(1);
+    return knockouts.find((r) => r.name === "Final")?.matches || [];
+  }, [knockouts, loading]);
+
+  const thirdPlace = useMemo(() => {
+    if (loading) return mockMatches(1);
+    return knockouts.find((r) => r.name === "Match for third place")?.matches || [];
+  }, [knockouts, loading]);
 
   // Symmetrically split brackets (Left Wing vs Right Wing)
   const leftWing = useMemo(() => {
@@ -231,7 +301,7 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
 
   // Helper to trace team advancement highlighting
   const isPathActive = (matchFrom?: Match, matchTo?: Match) => {
-    if (!hoveredTeam || !matchFrom || !matchTo) return false;
+    if (loading || !hoveredTeam || !matchFrom || !matchTo) return false;
     const tName = hoveredTeam.toLowerCase();
     const fromHasTeam = matchFrom.team1.toLowerCase() === tName || matchFrom.team2.toLowerCase() === tName;
     const toHasTeam = matchTo.team1.toLowerCase() === tName || matchTo.team2.toLowerCase() === tName;
@@ -404,7 +474,7 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
         <div className="overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 select-none" style={{ scrollbarWidth: "thin", scrollbarColor: "var(--border) transparent" }}>
           <div className="relative py-4" style={{ width: `${TOTAL_W}px`, height: "1820px" }}>
             {/* SVG Connector Lines */}
-            {renderSVGConnector()}
+            {!loading && renderSVGConnector()}
  
             {/* Columns Container */}
             <div className="absolute inset-0 pointer-events-none z-10">
@@ -414,11 +484,11 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${LX[0]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("round32").toUpperCase()}</span>
-                  <p className="text-[11px] font-bold text-foreground mt-0.5">{leftWing.r32.length} {isId ? "Laga" : "Matches"}</p>
+                  <p className="text-[11px] font-bold text-foreground mt-0.5">{loading ? 8 : leftWing.r32.length} {isId ? "Laga" : "Matches"}</p>
                 </div>
                 {leftWing.r32.map((match, idx) => (
                   <div key={match.id} className="absolute left-0 w-full" style={{ top: `${idx * 200 + 100}px`, transform: "translateY(-50%)" }}>
-                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} />
+                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} loading={loading} />
                   </div>
                 ))}
               </div>
@@ -427,11 +497,11 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${LX[1]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("round16").toUpperCase()}</span>
-                  <p className="text-[11px] font-bold text-foreground mt-0.5">{leftWing.r16.length} {isId ? "Laga" : "Matches"}</p>
+                  <p className="text-[11px] font-bold text-foreground mt-0.5">{loading ? 4 : leftWing.r16.length} {isId ? "Laga" : "Matches"}</p>
                 </div>
                 {leftWing.r16.map((match, idx) => (
                   <div key={match.id} className="absolute left-0 w-full" style={{ top: `${idx * 400 + 200}px`, transform: "translateY(-50%)" }}>
-                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} />
+                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} loading={loading} />
                   </div>
                 ))}
               </div>
@@ -440,11 +510,11 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${LX[2]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("quarterfinals").toUpperCase()}</span>
-                  <p className="text-[11px] font-bold text-foreground mt-0.5">{leftWing.qf.length} {isId ? "Laga" : "Matches"}</p>
+                  <p className="text-[11px] font-bold text-foreground mt-0.5">{loading ? 2 : leftWing.qf.length} {isId ? "Laga" : "Matches"}</p>
                 </div>
                 {leftWing.qf.map((match, idx) => (
                   <div key={match.id} className="absolute left-0 w-full" style={{ top: `${idx * 800 + 400}px`, transform: "translateY(-50%)" }}>
-                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} />
+                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} loading={loading} />
                   </div>
                 ))}
               </div>
@@ -453,11 +523,11 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${LX[3]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("semifinals").toUpperCase()}</span>
-                  <p className="text-[11px] font-bold text-foreground mt-0.5">{leftWing.sf.length} {isId ? "Laga" : "Match"}</p>
+                  <p className="text-[11px] font-bold text-foreground mt-0.5">{loading ? 1 : leftWing.sf.length} {isId ? "Laga" : "Match"}</p>
                 </div>
                 {leftWing.sf.map((match) => (
                   <div key={match.id} className="absolute left-0 w-full" style={{ top: "800px", transform: "translateY(-50%)" }}>
-                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} />
+                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} loading={loading} />
                   </div>
                 ))}
               </div>
@@ -467,14 +537,24 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
                 <div className="absolute top-[-80px] left-0 w-full text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{isId ? "KEJUARAAN" : "CHAMPIONSHIP"}</span>
                   <p className="text-[11px] font-bold text-foreground mt-0.5">
-                    {final.length + thirdPlace.length > 0 
+                    {loading ? 2 : final.length + thirdPlace.length > 0 
                       ? `${final.length + thirdPlace.length} ${isId ? "Laga" : "Matches"}`
                       : "-"}
                   </p>
                 </div>
                 
                 {/* Final Card */}
-                {final.length > 0 ? final.map((match) => (
+                {loading ? (
+                  <div className="absolute" style={{ left: `${(CENTER_W - COL_W) / 2}px`, top: "600px", transform: "translateY(-50%)" }}>
+                    <div className="absolute top-[-36px] left-1/2 -translate-x-1/2 w-full text-center select-none pointer-events-none">
+                      <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-yellow-500 uppercase tracking-widest bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20 whitespace-nowrap">
+                        <Trophy className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
+                        <span>{t("final").toUpperCase()}</span>
+                      </span>
+                    </div>
+                    <BracketMatchCard match={null as any} hoveredTeam={null} setHoveredTeam={() => {}} loading={true} />
+                  </div>
+                ) : final.length > 0 ? final.map((match) => (
                   <div key={match.id} className="absolute" style={{ left: `${(CENTER_W - COL_W) / 2}px`, top: "600px", transform: "translateY(-50%)" }}>
                     <div className="absolute top-[-36px] left-1/2 -translate-x-1/2 w-full text-center select-none pointer-events-none">
                       <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-yellow-500 uppercase tracking-widest bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20 whitespace-nowrap">
@@ -497,7 +577,16 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
                 )}
 
                 {/* Third Place Card */}
-                {thirdPlace.length > 0 ? thirdPlace.map((match) => (
+                {loading ? (
+                  <div className="absolute" style={{ left: `${(CENTER_W - COL_W) / 2}px`, top: "1000px", transform: "translateY(-50%)" }}>
+                    <div className="absolute top-[-32px] left-1/2 -translate-x-1/2 w-full text-center select-none pointer-events-none">
+                      <span className="text-[9px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider bg-[var(--tint-bg)] px-2.5 py-1 rounded-full border border-[var(--border)] whitespace-nowrap">
+                        {t("thirdPlacePlayoff")}
+                      </span>
+                    </div>
+                    <BracketMatchCard match={null as any} hoveredTeam={null} setHoveredTeam={() => {}} loading={true} />
+                  </div>
+                ) : thirdPlace.length > 0 ? thirdPlace.map((match) => (
                   <div key={match.id} className="absolute" style={{ left: `${(CENTER_W - COL_W) / 2}px`, top: "1000px", transform: "translateY(-50%)" }}>
                     <div className="absolute top-[-32px] left-1/2 -translate-x-1/2 w-full text-center select-none pointer-events-none">
                       <span className="text-[9px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider bg-[var(--tint-bg)] px-2.5 py-1 rounded-full border border-[var(--border)] whitespace-nowrap">
@@ -523,11 +612,11 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${RX[0]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("semifinals").toUpperCase()}</span>
-                  <p className="text-[11px] font-bold text-foreground mt-0.5">{rightWing.sf.length} {isId ? "Laga" : "Match"}</p>
+                  <p className="text-[11px] font-bold text-foreground mt-0.5">{loading ? 1 : rightWing.sf.length} {isId ? "Laga" : "Match"}</p>
                 </div>
                 {rightWing.sf.map((match) => (
                   <div key={match.id} className="absolute left-0 w-full" style={{ top: "800px", transform: "translateY(-50%)" }}>
-                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} isRightWing={true} />
+                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} isRightWing={true} loading={loading} />
                   </div>
                 ))}
               </div>
@@ -536,11 +625,11 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${RX[1]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("quarterfinals").toUpperCase()}</span>
-                  <p className="text-[11px] font-bold text-foreground mt-0.5">{rightWing.qf.length} {isId ? "Laga" : "Matches"}</p>
+                  <p className="text-[11px] font-bold text-foreground mt-0.5">{loading ? 2 : rightWing.qf.length} {isId ? "Laga" : "Matches"}</p>
                 </div>
                 {rightWing.qf.map((match, idx) => (
                   <div key={match.id} className="absolute left-0 w-full" style={{ top: `${idx * 800 + 400}px`, transform: "translateY(-50%)" }}>
-                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} isRightWing={true} />
+                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} isRightWing={true} loading={loading} />
                   </div>
                 ))}
               </div>
@@ -549,11 +638,11 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${RX[2]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("round16").toUpperCase()}</span>
-                  <p className="text-[11px] font-bold text-foreground mt-0.5">{rightWing.r16.length} {isId ? "Laga" : "Matches"}</p>
+                  <p className="text-[11px] font-bold text-foreground mt-0.5">{loading ? 4 : rightWing.r16.length} {isId ? "Laga" : "Matches"}</p>
                 </div>
                 {rightWing.r16.map((match, idx) => (
                   <div key={match.id} className="absolute left-0 w-full" style={{ top: `${idx * 400 + 200}px`, transform: "translateY(-50%)" }}>
-                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} isRightWing={true} />
+                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} isRightWing={true} loading={loading} />
                   </div>
                 ))}
               </div>
@@ -562,11 +651,11 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${RX[3]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("round32").toUpperCase()}</span>
-                  <p className="text-[11px] font-bold text-foreground mt-0.5">{rightWing.r32.length} {isId ? "Laga" : "Matches"}</p>
+                  <p className="text-[11px] font-bold text-foreground mt-0.5">{loading ? 8 : rightWing.r32.length} {isId ? "Laga" : "Matches"}</p>
                 </div>
                 {rightWing.r32.map((match, idx) => (
                   <div key={match.id} className="absolute left-0 w-full" style={{ top: `${idx * 200 + 100}px`, transform: "translateY(-50%)" }}>
-                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} isRightWing={true} />
+                    <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} isRightWing={true} loading={loading} />
                   </div>
                 ))}
               </div>
@@ -592,7 +681,34 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
                 </span>
               </div>
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-                {round.matches.length === 0 ? (
+                {loading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="p-4 rounded-[16px] border border-[var(--border)] flex flex-col justify-between"
+                      style={{ backgroundColor: "var(--card)", height: "135px" }}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="w-16 h-3 rounded shimmer-bg opacity-45" />
+                        <div className="w-24 h-3 rounded shimmer-bg opacity-30" />
+                      </div>
+                      <div className="space-y-2 py-2">
+                        <div className="flex gap-2">
+                          <div className="w-5 h-3.5 rounded shimmer-bg opacity-20" />
+                          <div className="w-32 h-4 rounded shimmer-bg" />
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="w-5 h-3.5 rounded shimmer-bg opacity-20" />
+                          <div className="w-28 h-4 rounded shimmer-bg" />
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center pt-2 border-t border-[var(--hairline-soft)]">
+                        <div className="w-12 h-3.5 rounded shimmer-bg opacity-45" />
+                        <div className="w-16 h-3.5 rounded shimmer-bg opacity-45" />
+                      </div>
+                    </div>
+                  ))
+                ) : round.matches.length === 0 ? (
                   <div className="col-span-full text-center py-6" style={{ color: "var(--muted-foreground)", fontSize: "13px", fontWeight: 500 }}>—</div>
                 ) : round.matches.map((match) => {
                   const flag1 = getCountryFlagUrl(match.team1);
@@ -706,6 +822,7 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
           ))}
         </div>
       )}
+
     </div>
   );
 }

@@ -35,11 +35,7 @@ export default function KnockoutPage() {
 
   const knockouts = useMemo(() => (data ? organizeKnockout(data.matches) : []), [data]);
 
-  if (loading) {
-    return <LoadingState message={isId ? "Memuat bagan fase gugur..." : "Loading knockout bracket..."} />;
-  }
-
-  if (error || !data) {
+  if (error || (!loading && !data)) {
     return <ErrorState error={error || (isId ? "Gagal memuat data" : "Failed to load data")} />;
   }
 
@@ -72,8 +68,9 @@ export default function KnockoutPage() {
           </div>
         </div>
 
-        <KnockoutBracket knockouts={knockouts} />
+        <KnockoutBracket knockouts={knockouts} loading={loading} />
       </div>
     </PageTransition>
   );
 }
+

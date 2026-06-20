@@ -9,7 +9,7 @@ import { getCountryFlagUrl } from "@/lib/data";
 import { MatchCard } from "@/components/match/match-card";
 import { FormationLineup } from "@/components/match/formation-lineup";
 import { PageTransition } from "@/components/layout/page-transition";
-import { LoadingState } from "@/components/layout/loading-state";
+import { MatchCardSkeleton, ShimmerStyle } from "@/components/layout/loading-state";
 import { ErrorState } from "@/components/layout/error-state";
 import { useTranslation } from "@/components/layout/language-provider";
 
@@ -72,18 +72,15 @@ export default function TeamDetailPage() {
     );
   }, [matches, team]);
 
-  if (loading) {
-    return <LoadingState message={t("teams") === "Tim" ? "Memuat data tim..." : "Loading team data..."} py="py-32" />;
-  }
-
-  if (error || !team) {
+  if (error || (!loading && !team)) {
     return <ErrorState error={error || "Team not found"} />;
   }
 
-  const flagUrl = getCountryFlagUrl(team.name);
+  const flagUrl = team ? getCountryFlagUrl(team.name) : null;
 
   return (
     <PageTransition className="max-w-6xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
+      <ShimmerStyle />
       {/* Back link */}
       <div style={{ marginBottom: "24px" }}>
         <Link
@@ -99,97 +96,114 @@ export default function TeamDetailPage() {
       {/* Header */}
       <div style={{ paddingBottom: "32px" }}>
         <div className="flex items-start gap-5">
-          {/* Flag */}
-          <div
-            className="shrink-0 overflow-hidden"
-            style={{
-              width: "80px",
-              height: "56px",
-              borderRadius: "8px",
-              border: "1px solid var(--border)",
-            }}
-          >
-            {flagUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={flagUrl}
-                alt={team.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-3xl" style={{ backgroundColor: "var(--muted)" }}>
-                {team.flag_icon}
+          {loading ? (
+            <>
+              <div className="w-[80px] h-[56px] rounded-lg shimmer-bg opacity-30 shrink-0" />
+              <div className="space-y-3 flex-1">
+                <div className="w-56 h-7 rounded shimmer-bg" />
+                <div className="flex gap-2">
+                  <div className="w-16 h-5 rounded shimmer-bg opacity-40" />
+                  <div className="w-16 h-5 rounded shimmer-bg opacity-40" />
+                  <div className="w-16 h-5 rounded shimmer-bg opacity-40" />
+                </div>
               </div>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              {/* Flag */}
+              <div
+                className="shrink-0 overflow-hidden"
+                style={{
+                  width: "80px",
+                  height: "56px",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                {flagUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={flagUrl}
+                    alt={team!.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-3xl" style={{ backgroundColor: "var(--muted)" }}>
+                    {team!.flag_icon}
+                  </div>
+                )}
+              </div>
 
-          <div>
-            <h2
-              style={{
-                fontSize: "clamp(1.5rem, 3vw, 2rem)",
-                fontWeight: 500,
-                lineHeight: 1.13,
-                letterSpacing: "-1px",
-                color: "var(--foreground)",
-              }}
-            >
-              {team.name}
-            </h2>
-            <div className="flex flex-wrap items-center gap-2 mt-2">
-              <span
-                className="inline-flex items-center gap-1 font-bold"
-                style={{
-                  fontSize: "11px",
-                  padding: "2px 8px",
-                  borderRadius: "6px",
-                  backgroundColor: "var(--primary)",
-                  color: "var(--primary-foreground)",
-                }}
-              >
-                {team.fifa_code}
-              </span>
-              <span
-                className="inline-flex items-center gap-1 font-semibold"
-                style={{
-                  fontSize: "11px",
-                  padding: "2px 8px",
-                  borderRadius: "6px",
-                  backgroundColor: "var(--muted)",
-                  color: "var(--muted-foreground)",
-                }}
-              >
-                Group {team.group}
-              </span>
-              <span
-                className="inline-flex items-center gap-1"
-                style={{
-                  fontSize: "11px",
-                  padding: "2px 8px",
-                  borderRadius: "6px",
-                  backgroundColor: "var(--card)",
-                  color: "var(--muted-foreground)",
-                  border: "1px solid var(--border)",
-                }}
-              >
-                <Globe className="h-3 w-3" />
-                {team.confed}
-              </span>
-              <span
-                style={{
-                  fontSize: "11px",
-                  padding: "2px 8px",
-                  borderRadius: "6px",
-                  backgroundColor: "var(--card)",
-                  color: "var(--muted-foreground)",
-                  border: "1px solid var(--border)",
-                }}
-              >
-                {team.continent}
-              </span>
-            </div>
-          </div>
+              <div>
+                <h2
+                  style={{
+                    fontSize: "clamp(1.5rem, 3vw, 2rem)",
+                    fontWeight: 500,
+                    lineHeight: 1.13,
+                    letterSpacing: "-1px",
+                    color: "var(--foreground)",
+                  }}
+                >
+                  {team!.name}
+                </h2>
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  <span
+                    className="inline-flex items-center gap-1 font-bold"
+                    style={{
+                      fontSize: "11px",
+                      padding: "2px 8px",
+                      borderRadius: "6px",
+                      backgroundColor: "var(--primary)",
+                      color: "var(--primary-foreground)",
+                    }}
+                  >
+                    {team!.fifa_code}
+                  </span>
+                  <span
+                    className="inline-flex items-center gap-1 font-semibold"
+                    style={{
+                      fontSize: "11px",
+                      padding: "2px 8px",
+                      borderRadius: "6px",
+                      backgroundColor: "var(--muted)",
+                      color: "var(--muted-foreground)",
+                    }}
+                  >
+                    Group {team!.group}
+                  </span>
+                  <span
+                    className="inline-flex items-center gap-1"
+                    style={{
+                      fontSize: "11px",
+                      padding: "2px 8px",
+                      borderRadius: "6px",
+                      backgroundColor: "var(--card)",
+                      color: "var(--muted-foreground)",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    <Globe className="h-3 w-3" />
+                    {team!.confed}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      padding: "2px 8px",
+                      borderRadius: "6px",
+                      backgroundColor: "var(--card)",
+                      color: "var(--muted-foreground)",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    {team!.continent}
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
+
 
       {/* Squad */}
       <div style={{ paddingBottom: "48px" }}>
@@ -217,12 +231,12 @@ export default function TeamDetailPage() {
                 color: "var(--muted-foreground)",
               }}
             >
-              {t("playerCount", { count: String(team.players.length) })}
+              {loading ? "-" : t("playerCount", { count: String(team?.players.length ?? 0) })}
             </span>
           </div>
 
           {/* Tab switcher */}
-          {team.players.length > 0 && (
+          {!loading && team && team.players.length > 0 && (
             <div
               className="flex items-center gap-0.5 p-0.5"
               style={{
@@ -260,7 +274,36 @@ export default function TeamDetailPage() {
           )}
         </div>
 
-        {team.players.length === 0 ? (
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  backgroundColor: "var(--card)",
+                  borderRadius: "16px",
+                  border: "1px solid var(--border)",
+                  overflow: "hidden",
+                }}
+              >
+                <div className="px-4 py-3 bg-[var(--muted)]">
+                  <div className="w-24 h-4 rounded shimmer-bg" />
+                </div>
+                <div className="divide-y divide-[var(--border)]">
+                  {[1, 2, 3].map((j) => (
+                    <div key={j} className="flex items-center justify-between px-4 py-3">
+                      <div className="flex items-center gap-3 w-1/2">
+                        <div className="w-7 h-7 rounded-lg shimmer-bg opacity-30 shrink-0" />
+                        <div className="w-2/3 h-4 rounded shimmer-bg" />
+                      </div>
+                      <div className="w-8 h-4 rounded shimmer-bg opacity-30" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : !team || team.players.length === 0 ? (
           <div
             className="text-center py-12"
             style={{
@@ -370,7 +413,7 @@ export default function TeamDetailPage() {
       </div>
 
       {/* Group matches */}
-      {groupMatches.length > 0 && (
+      {(loading || groupMatches.length > 0) && (
         <div>
           <h2
             className="mb-4"
@@ -385,12 +428,19 @@ export default function TeamDetailPage() {
             {t("groupMatches")}
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {groupMatches.map((m) => (
-              <MatchCard key={m.id} match={m} />
-            ))}
+            {loading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <MatchCardSkeleton key={i} />
+              ))
+            ) : (
+              groupMatches.map((m) => (
+                <MatchCard key={m.id} match={m} />
+              ))
+            )}
           </div>
         </div>
       )}
+
     </PageTransition>
   );
 }

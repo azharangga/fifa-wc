@@ -6,7 +6,7 @@ import { MatchCard } from "@/components/match/match-card";
 import { WorldCupData, Match } from "@/lib/types";
 import { formatDate, getMatchStatus, getMatchWibDateStr } from "@/lib/data";
 import { PageTransition } from "@/components/layout/page-transition";
-import { LoadingState } from "@/components/layout/loading-state";
+import { MatchCardSkeleton, ShimmerStyle } from "@/components/layout/loading-state";
 import { ErrorState } from "@/components/layout/error-state";
 import { useTranslation } from "@/components/layout/language-provider";
 
@@ -46,11 +46,11 @@ export default function SchedulePage() {
       const q = searchQuery.toLowerCase().trim();
       matches = matches.filter(
         (m) =>
-          m.team1.toLowerCase().includes(q) ||
-          m.team2.toLowerCase().includes(q) ||
-          (m.ground && m.ground.toLowerCase().includes(q)) ||
-          (m.hostCity && m.hostCity.toLowerCase().includes(q)) ||
-          (m.group && m.group.toLowerCase().includes(q))
+            m.team1.toLowerCase().includes(q) ||
+            m.team2.toLowerCase().includes(q) ||
+            (m.ground && m.ground.toLowerCase().includes(q)) ||
+            (m.hostCity && m.hostCity.toLowerCase().includes(q)) ||
+            (m.group && m.group.toLowerCase().includes(q))
       );
     }
     return matches;
@@ -59,9 +59,6 @@ export default function SchedulePage() {
   const groupedMatches = useMemo(() => {
     const map = new Map<string, Match[]>();
     for (const m of filteredMatches) {
-      // In Indonesian mode, group matches by their WIB (UTC+7) date.
-      // This ensures that matches crossing midnight (e.g. 13:00 UTC-6 = 02:00 WIB
-      // the next day) appear under the correct Indonesian date group.
       const key = isId ? getMatchWibDateStr(m.date, m.time) : m.date;
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(m);
@@ -77,16 +74,13 @@ export default function SchedulePage() {
     setVisibleDatesCount(15);
   }, [filter, searchQuery, lang]);
 
-  if (loading) {
-    return <LoadingState message={isId ? "Memuat jadwal turnamen..." : "Loading tournament schedule..."} />;
-  }
-
-  if (error || !data) {
+  if (error || (!loading && !data)) {
     return <ErrorState error={error || (isId ? "Gagal memuat data" : "Failed to load data")} />;
   }
 
   return (
     <PageTransition className="max-w-6xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
+      <ShimmerStyle />
       <div className="space-y-12">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -127,8 +121,9 @@ export default function SchedulePage() {
               { key: "upcoming", label: isId ? "Mendatang" : "Upcoming" },
             ] as const).map((f) => {
               const isActive = filter === f.key;
-              const count =
-                f.key === "all"
+              const count = !data 
+                ? 0 
+                : f.key === "all"
                   ? data.matches.length
                   : data.matches.filter((m) => getMatchStatus(m) === f.key).length;
               return (
@@ -185,7 +180,13 @@ export default function SchedulePage() {
 
         {/* Grouped matches */}
         <div className="space-y-10">
-          {displayedGroupedMatches.length === 0 ? (
+          {loading ? (
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <MatchCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : displayedGroupedMatches.length === 0 ? (
             <div
               style={{
                 backgroundColor: "var(--card)",
@@ -256,3 +257,4 @@ export default function SchedulePage() {
     </PageTransition>
   );
 }
+

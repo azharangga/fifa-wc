@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PageTransition } from "@/components/layout/page-transition";
-import { LoadingState } from "@/components/layout/loading-state";
+import { ShimmerStyle } from "@/components/layout/loading-state";
 import { ErrorState } from "@/components/layout/error-state";
 import { useTranslation } from "@/components/layout/language-provider";
 
@@ -54,16 +54,13 @@ export default function TeamsPage() {
     });
   }, [teams, search, confedFilter, groupFilter]);
 
-  if (loading) {
-    return <LoadingState message={t("teams") === "Tim" ? "Memuat data tim..." : "Loading teams data..."} py="py-32" />;
-  }
-
-  if (error || teams.length === 0) {
+  if (error || (!loading && teams.length === 0)) {
     return <ErrorState error={error || (t("teams") === "Tim" ? "Gagal memuat data tim" : "Failed to load teams data")} />;
   }
 
   return (
     <PageTransition className="max-w-6xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
+      <ShimmerStyle />
       {/* Hero */}
       <div style={{ paddingBottom: "32px" }}>
         <div className="flex items-center gap-3 mb-4">
@@ -176,7 +173,26 @@ export default function TeamsPage() {
 
       {/* Grid */}
       <div>
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 p-4 rounded-[16px] border border-[var(--border)]"
+                style={{ backgroundColor: "var(--card)" }}
+              >
+                <div className="w-10 h-7 rounded-[4px] shimmer-bg opacity-30 shrink-0" />
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <div className="w-2/3 h-4 rounded shimmer-bg" />
+                  <div className="flex gap-1.5">
+                    <div className="w-8 h-3.5 rounded shimmer-bg opacity-40" />
+                    <div className="w-12 h-3.5 rounded shimmer-bg opacity-40" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-20">
             <p style={{ color: "var(--muted-foreground)", fontSize: "15px" }}>{t("noTeamsFound")}</p>
           </div>
