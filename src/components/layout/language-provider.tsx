@@ -146,7 +146,7 @@ const translations: Record<Language, Record<string, string>> = {
     activeChannel: "ACTIVE",
 
     // Footer
-    footerDesc: "Your destination for the 2026 FIFA World Cup. Live scores, standings, bracket results, and live match streaming.",
+    footerDesc: "The ultimate streaming hub for the 2026 FIFA World Cup. Experience every thrilling match in high-definition HLS, complete with live scores, real-time standings, interactive knockout brackets, and up-to-the-minute scorer insights.",
     footerCopyright: "© 2026 Azharangga Kusuma. All rights reserved.",
     footerCredits: "Match data by openfootball",
 
@@ -323,7 +323,7 @@ const translations: Record<Language, Record<string, string>> = {
     activeChannel: "AKTIF",
 
     // Footer
-    footerDesc: "Destinasi terlengkap Piala Dunia FIFA 2026. Skor langsung, klasemen, hasil fase gugur, dan streaming pertandingan live.",
+    footerDesc: "Pusat streaming utama untuk Piala Dunia FIFA 2026. Saksikan setiap pertandingan seru dalam kualitas tinggi HLS secara langsung, lengkap dengan skor real-time, klasemen grup, bagan fase gugur interaktif, serta statistik pencetak gol terbaru.",
     footerCopyright: "© 2026 Azharangga Kusuma. Seluruh hak dilindungi.",
     footerCredits: "Data pertandingan oleh openfootball",
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CircleDot } from "lucide-react";
+import { CircleDot, Github, Linkedin, Instagram, Mail } from "lucide-react";
 import { useTranslation } from "./language-provider";
 
 export function Footer() {
@@ -49,6 +49,84 @@ export function Footer() {
             >
               {t("footerDesc")}
             </p>
+            
+            {/* Social Media Links */}
+            <div className="flex items-center gap-2.5 pt-1.5">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-85 transition-opacity"
+                style={{
+                  backgroundColor: "var(--foreground)",
+                  color: "var(--background)",
+                  borderRadius: "9999px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "28px",
+                  height: "28px",
+                }}
+                aria-label="GitHub"
+              >
+                <Github className="h-3.5 w-3.5" />
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-85 transition-opacity"
+                style={{
+                  backgroundColor: "var(--foreground)",
+                  color: "var(--background)",
+                  borderRadius: "9999px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "28px",
+                  height: "28px",
+                }}
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-3.5 w-3.5" />
+              </a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-85 transition-opacity"
+                style={{
+                  backgroundColor: "var(--foreground)",
+                  color: "var(--background)",
+                  borderRadius: "9999px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "28px",
+                  height: "28px",
+                }}
+                aria-label="Instagram"
+              >
+                <Instagram className="h-3.5 w-3.5" />
+              </a>
+              <a
+                href="mailto:azharangga.kusuma@gmail.com"
+                className="hover:opacity-85 transition-opacity"
+                style={{
+                  backgroundColor: "var(--foreground)",
+                  color: "var(--background)",
+                  borderRadius: "9999px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "28px",
+                  height: "28px",
+                }}
+                aria-label="Email"
+              >
+                <Mail className="h-3.5 w-3.5" />
+              </a>
+            </div>
           </div>
 
           {/* Column 2: Empty Spacer to maintain column positions */}
