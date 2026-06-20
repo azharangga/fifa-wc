@@ -74,7 +74,7 @@ export function Header() {
                 className="h-9 px-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--hover-bg)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5 transition-all cursor-pointer font-bold text-xs uppercase"
               >
                 <Languages className="h-4 w-4" />
-                <span>{lang.toUpperCase()}</span>
+                <span suppressHydrationWarning>{lang.toUpperCase()}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-[var(--card)] border border-[var(--border)] min-w-[130px] p-1">
