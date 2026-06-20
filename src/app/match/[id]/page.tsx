@@ -14,10 +14,10 @@ import { MatchScoreCard } from "@/components/match/match-score-card";
 import { useTranslation } from "@/components/layout/language-provider";
 
 const STREAM_CHANNELS: StreamChannel[] = [
-  { id: "rtbgo", name: "RTB Go", quality: "HD 720p", url: "https://d1211whpimeups.cloudfront.net/smil:rtbgo/chunklist_b4096000_slENG.m3u8" },
-  { id: "rtb2", name: "RTB 2", quality: "HD 720p", url: "https://d1211whpimeups.cloudfront.net/smil:rtb2/playlist.m3u8" },
-  { id: "vtv3", name: "VTV3", quality: "HD", url: "https://live.fptplay53.net/live/media/vtv3/live247-hls-avc/index.m3u8" },
-  { id: "vtv6", name: "VTV6", quality: "HD", url: "https://live-a.fptplay53.net/live/media/vtv6/live247-hls-avc/index.m3u8" },
+  { id: "rtbgo", name: "RTB Go", quality: "HD 720p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTBGO || "https://d1211whpimeups.cloudfront.net/smil:rtbgo/chunklist_b4096000_slENG.m3u8" },
+  { id: "rtb2", name: "RTB 2", quality: "HD 720p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTB2 || "https://d1211whpimeups.cloudfront.net/smil:rtb2/playlist.m3u8" },
+  { id: "vtv3", name: "VTV3", quality: "HD", url: process.env.NEXT_PUBLIC_STREAM_URL_VTV3 || "https://live.fptplay53.net/live/media/vtv3/live247-hls-avc/index.m3u8" },
+  { id: "vtv6", name: "VTV6", quality: "HD", url: process.env.NEXT_PUBLIC_STREAM_URL_VTV6 || "https://live-a.fptplay53.net/live/media/vtv6/live247-hls-avc/index.m3u8" },
 ];
 
 export default function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -101,7 +101,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               </Badge>
             )}
             {status === "upcoming" && (
-              <Badge style={{ fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "6px", backgroundColor: "rgba(255,255,255,0.08)", color: "var(--muted-foreground)", border: "1px solid var(--border)" }}>
+              <Badge style={{ fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "6px", backgroundColor: "#ffffff", color: "#000000", border: "none" }}>
                 {t("upcoming")}
               </Badge>
             )}

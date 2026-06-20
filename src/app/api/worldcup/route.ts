@@ -4,6 +4,7 @@ import { v5 as uuidv5 } from "uuid";
 // ─── OpenFootball public dataset (no API key required) ───────────────────────
 // https://github.com/openfootball/worldcup.json
 const OPENFOOTBALL_URL =
+  process.env.OPENFOOTBALL_WORLDCUP_URL ||
   "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json";
 
 const UUID_NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";

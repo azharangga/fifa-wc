@@ -243,13 +243,33 @@ export function convertTimeToUserTimezone(
 
 export function getMatchStatus(match: Match): "completed" | "upcoming" | "live" {
   if (match.score?.ft) return "completed";
-  const matchDate = new Date(match.date + "T00:00:00Z");
+
+  let startTime: Date;
+  if (match.time && match.time !== "TBD") {
+    const m = match.time.match(/(\d{1,2}):(\d{2})(?:\s+UTC([+-]\d+))?/);
+    if (m) {
+      const [, hourStr, minuteStr, utcOffsetStr] = m;
+      const utcOffset = utcOffsetStr ? parseInt(utcOffsetStr, 10) : 0;
+      const d = new Date(`${match.date}T${hourStr.padStart(2, "0")}:${minuteStr}:00Z`);
+      d.setUTCHours(d.getUTCHours() - utcOffset);
+      startTime = d;
+    } else {
+      startTime = new Date(match.date + "T12:00:00Z");
+    }
+  } else {
+    startTime = new Date(match.date + "T12:00:00Z");
+  }
+
   const now = new Date();
-  const userToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const userMatchDate = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
-  if (userMatchDate.getTime() === userToday.getTime()) return "live";
-  if (matchDate < now) return "completed";
-  return "upcoming";
+  const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours match duration
+
+  if (now < startTime) {
+    return "upcoming";
+  } else if (now >= startTime && now < endTime) {
+    return "live";
+  } else {
+    return "completed";
+  }
 }
 
 export function getCountryFlagUrl(teamName: string): string {

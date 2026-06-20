@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 
 const TEAMS_URL =
+  process.env.OPENFOOTBALL_TEAMS_URL ||
   "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.teams.json";
 const SQUADS_URL =
+  process.env.OPENFOOTBALL_SQUADS_URL ||
   "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.squads.json";
 
 let cachedData: any[] | null = null;

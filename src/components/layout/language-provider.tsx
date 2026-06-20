@@ -36,6 +36,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Home
     liveMatches: "Live & Featured Matches",
+    liveAndUpcoming: "Live & Upcoming Matches",
     viewAllMatches: "View All Matches",
     upcomingFixtures: "Upcoming Fixtures",
     groupStandings: "Group Standings",
@@ -212,6 +213,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Home
     liveMatches: "Pertandingan Langsung & Pilihan",
+    liveAndUpcoming: "Siaran Langsung & Jadwal",
     viewAllMatches: "Lihat Semua Pertandingan",
     upcomingFixtures: "Jadwal Mendatang",
     groupStandings: "Klasemen Grup",

@@ -108,17 +108,17 @@ export function MatchCard({ match }: { match: Match }) {
               <Badge
                 style={{
                   fontSize: "9px",
-                  fontWeight: 500,
+                  fontWeight: 700,
                   letterSpacing: "0.08em",
-                  padding: "2px 8px 2px 8px",
+                  padding: "3px 8px 3px 8px",
                   lineHeight: "1",
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
                   borderRadius: "6px",
-                  backgroundColor: "rgba(255,255,255,0.1)",
-                  color: "#999999",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  backgroundColor: "#ffffff",
+                  color: "#000000",
+                  border: "none",
                 }}
               >
                 {isId ? "MENDATANG" : "UPCOMING"}

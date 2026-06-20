@@ -53,15 +53,39 @@ export default function Home() {
       });
   }, []);
 
-  const liveAndCompleted = useMemo(() => {
-    if (!data) return [];
-    return data.matches.filter((m) => getMatchStatus(m) === "live" || getMatchStatus(m) === "completed");
-  }, [data]);
+  const { todayStr, tomorrowStr } = useMemo(() => {
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
 
-  const upcomingMatches = useMemo(() => {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+    const tomorrowStr = `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`;
+    return { todayStr, tomorrowStr };
+  }, []);
+
+  const liveAndUpcomingMatches = useMemo(() => {
     if (!data) return [];
-    return data.matches.filter((m) => getMatchStatus(m) === "upcoming");
-  }, [data]);
+    
+    // Get live matches
+    const live = data.matches.filter((m) => getMatchStatus(m) === "live");
+    
+    // Get upcoming matches for today and tomorrow
+    const upcoming = data.matches.filter((m) => {
+      const status = getMatchStatus(m);
+      if (status !== "upcoming") return false;
+      return m.date === todayStr || m.date === tomorrowStr;
+    });
+
+    // Sort upcoming matches by date and time
+    upcoming.sort((a, b) => {
+      const dateDiff = a.date.localeCompare(b.date);
+      if (dateDiff !== 0) return dateDiff;
+      return (a.time || "").localeCompare(b.time || "");
+    });
+
+    return [...live, ...upcoming];
+  }, [data, todayStr, tomorrowStr]);
 
   const groups = useMemo(() => {
     if (!data) return [];
@@ -132,8 +156,8 @@ export default function Home() {
             {loading ? <StatsBannerSkeleton /> : <StatsBanner data={data!} />}
           </div>
 
-          {/* Rail 1: Live & Recent */}
-          {(loading || liveAndCompleted.length > 0) && (
+          {/* Rail 1: Live & Upcoming Matches */}
+          {(loading || liveAndUpcomingMatches.length > 0) && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -152,7 +176,7 @@ export default function Home() {
                       color: "var(--foreground)",
                     }}
                   >
-                    {t("liveMatches")}
+                    {t("liveAndUpcoming")}
                   </h3>
                 </div>
                 <Link
@@ -170,7 +194,7 @@ export default function Home() {
                     <MatchCardSkeleton key={i} />
                   ))
                 ) : (
-                  liveAndCompleted.slice(0, 6).map((match) => (
+                  liveAndUpcomingMatches.slice(0, 6).map((match) => (
                     <MatchCard key={match.id} match={match} />
                   ))
                 )}
@@ -178,49 +202,30 @@ export default function Home() {
             </div>
           )}
 
-          {/* Rail 2: Upcoming */}
-          {(loading || upcomingMatches.length > 0) && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="p-2 flex items-center justify-center"
-                    style={{ backgroundColor: "var(--card)", borderRadius: "10px", border: "1px solid var(--border)" }}
-                  >
-                    <Calendar className="h-4 w-4" style={{ color: "var(--foreground)" }} />
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: "clamp(1.5rem, 3vw, 2rem)",
-                      fontWeight: 500,
-                      lineHeight: 1.13,
-                      letterSpacing: "-1px",
-                      color: "var(--foreground)",
-                    }}
-                  >
-                    {t("upcomingFixtures")}
-                  </h3>
-                </div>
-                <Link
-                  href="/schedule"
-                  style={{ color: "var(--foreground)", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.14px", display: "inline-flex", alignItems: "center", gap: "4px" }}
-                  className="hover:underline"
-                >
-                  <span>{t("home") === "Beranda" ? "Lihat Semua" : "See All"}</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {loading ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <MatchCardSkeleton key={i} />
-                  ))
-                ) : (
-                  upcomingMatches.slice(0, 6).map((match) => (
-                    <MatchCard key={match.id} match={match} />
-                  ))
-                )}
-              </div>
+          {/* No matches today/tomorrow placeholder */}
+          {!loading && liveAndUpcomingMatches.length === 0 && (
+            <div
+              style={{
+                backgroundColor: "var(--card)",
+                borderRadius: "20px",
+                border: "1px solid var(--border)",
+                padding: "48px 24px",
+              }}
+              className="text-center space-y-4 flex flex-col items-center justify-center"
+            >
+              <p style={{ color: "var(--muted-foreground)", fontSize: "15px", fontWeight: 400, letterSpacing: "-0.15px" }}>
+                {t("home") === "Beranda" 
+                  ? "Tidak ada pertandingan yang berlangsung hari ini atau besok." 
+                  : "No matches scheduled for today or tomorrow."}
+              </p>
+              <Link
+                href="/schedule"
+                className="btn-primary inline-flex items-center gap-1.5 hover:opacity-90 transition-opacity"
+                style={{ padding: "8px 16px", borderRadius: "100px", fontSize: "13px", height: "36px", backgroundColor: "var(--foreground)", color: "var(--background)" }}
+              >
+                <span>{t("home") === "Beranda" ? "Lihat Jadwal Lengkap" : "View Full Schedule"}</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           )}
 
