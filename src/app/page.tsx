@@ -7,7 +7,7 @@ import { StatsBanner } from "@/components/home/stats-banner";
 import { TopScorers } from "@/components/standing/top-scorers";
 import { MatchCard } from "@/components/match/match-card";
 import { WorldCupData, Stadium, Match } from "@/lib/types";
-import { getMatchStatus, organizeGroups } from "@/lib/data";
+import { getMatchStatus, organizeGroups, getMatchStartTimeMs } from "@/lib/data";
 import { PageTransition } from "@/components/layout/page-transition";
 import { GroupTable } from "@/components/standing/group-table";
 import { HomeCarousel } from "@/components/home/home-carousel";
@@ -79,9 +79,7 @@ export default function Home() {
 
     // Sort upcoming matches by date and time
     upcoming.sort((a, b) => {
-      const dateDiff = a.date.localeCompare(b.date);
-      if (dateDiff !== 0) return dateDiff;
-      return (a.time || "").localeCompare(b.time || "");
+      return getMatchStartTimeMs(a) - getMatchStartTimeMs(b);
     });
 
     return [...live, ...upcoming];

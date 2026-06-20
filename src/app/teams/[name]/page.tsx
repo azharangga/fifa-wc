@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Shield, Users, Globe, LayoutList, LayoutGrid } from "lucide-react";
 import { Team, WorldCupData } from "@/lib/types";
-import { getCountryFlagUrl } from "@/lib/data";
+import { getCountryFlagUrl, getMatchStartTimeMs } from "@/lib/data";
 import { MatchCard } from "@/components/match/match-card";
 import { FormationLineup } from "@/components/match/formation-lineup";
 import { PageTransition } from "@/components/layout/page-transition";
@@ -65,11 +65,13 @@ export default function TeamDetailPage() {
 
   const groupMatches = useMemo(() => {
     if (!team) return [];
-    return matches.filter(
-      (m) =>
-        m.group === `Group ${team.group}` &&
-        (m.team1 === team.name || m.team2 === team.name)
-    );
+    return matches
+      .filter(
+        (m) =>
+          m.group === `Group ${team.group}` &&
+          (m.team1 === team.name || m.team2 === team.name)
+      )
+      .sort((a, b) => getMatchStartTimeMs(a) - getMatchStartTimeMs(b));
   }, [matches, team]);
 
   if (error || (!loading && !team)) {

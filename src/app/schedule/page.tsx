@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Calendar, ChevronDown, Search } from "lucide-react";
 import { MatchCard } from "@/components/match/match-card";
 import { WorldCupData, Match } from "@/lib/types";
-import { formatDate, getMatchStatus, getMatchWibDateStr } from "@/lib/data";
+import { formatDate, getMatchStatus, getMatchWibDateStr, getMatchStartTimeMs } from "@/lib/data";
 import { PageTransition } from "@/components/layout/page-transition";
 import { MatchCardSkeleton, ShimmerStyle } from "@/components/layout/loading-state";
 import { ErrorState } from "@/components/layout/error-state";
@@ -62,6 +62,10 @@ export default function SchedulePage() {
       const key = isId ? getMatchWibDateStr(m.date, m.time) : m.date;
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(m);
+    }
+    // Sort matches on the same day from earliest to latest time
+    for (const key of map.keys()) {
+      map.get(key)!.sort((a, b) => getMatchStartTimeMs(a) - getMatchStartTimeMs(b));
     }
     return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [filteredMatches, isId]);

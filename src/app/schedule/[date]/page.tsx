@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Loader2, Calendar, ArrowLeft } from "lucide-react";
 import { MatchCard } from "@/components/match/match-card";
 import { WorldCupData } from "@/lib/types";
-import { formatDate } from "@/lib/data";
+import { formatDate, getMatchStartTimeMs } from "@/lib/data";
 import { PageTransition } from "@/components/layout/page-transition";
 import { useTranslation } from "@/components/layout/language-provider";
 
@@ -39,7 +39,9 @@ export default function DateSchedulePage() {
 
   const dayMatches = useMemo(() => {
     if (!data || !dateStr) return [];
-    return data.matches.filter((m) => m.date === dateStr);
+    return data.matches
+      .filter((m) => m.date === dateStr)
+      .sort((a, b) => getMatchStartTimeMs(a) - getMatchStartTimeMs(b));
   }, [data, dateStr]);
 
   if (loading) {

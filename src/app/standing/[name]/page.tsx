@@ -6,6 +6,7 @@ import { Loader2, Trophy, ArrowLeft } from "lucide-react";
 import { MatchCard } from "@/components/match/match-card";
 import { WorldCupData } from "@/lib/types";
 import { PageTransition } from "@/components/layout/page-transition";
+import { getMatchStartTimeMs } from "@/lib/data";
 
 export default function GroupMatchesPage() {
   const params = useParams();
@@ -35,7 +36,9 @@ export default function GroupMatchesPage() {
 
   const groupMatches = useMemo(() => {
     if (!data || !groupName) return [];
-    return data.matches.filter((m) => m.group === groupName);
+    return data.matches
+      .filter((m) => m.group === groupName)
+      .sort((a, b) => getMatchStartTimeMs(a) - getMatchStartTimeMs(b));
   }, [data, groupName]);
 
   if (loading) {

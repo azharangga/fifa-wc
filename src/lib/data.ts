@@ -241,10 +241,7 @@ export function convertTimeToUserTimezone(
   }
 }
 
-export function getMatchStatus(match: Match): "completed" | "upcoming" | "live" {
-  if (match.score?.ft) return "completed";
-
-  let startTime: Date;
+export function getMatchStartTimeMs(match: Match): number {
   if (match.time && match.time !== "TBD") {
     const m = match.time.match(/(\d{1,2}):(\d{2})(?:\s+UTC([+-]\d+))?/);
     if (m) {
@@ -252,20 +249,22 @@ export function getMatchStatus(match: Match): "completed" | "upcoming" | "live" 
       const utcOffset = utcOffsetStr ? parseInt(utcOffsetStr, 10) : 0;
       const d = new Date(`${match.date}T${hourStr.padStart(2, "0")}:${minuteStr}:00Z`);
       d.setUTCHours(d.getUTCHours() - utcOffset);
-      startTime = d;
-    } else {
-      startTime = new Date(match.date + "T12:00:00Z");
+      return d.getTime();
     }
-  } else {
-    startTime = new Date(match.date + "T12:00:00Z");
   }
+  return new Date(match.date + "T12:00:00Z").getTime();
+}
 
-  const now = new Date();
-  const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours match duration
+export function getMatchStatus(match: Match): "completed" | "upcoming" | "live" {
+  if (match.score?.ft) return "completed";
 
-  if (now < startTime) {
+  const startTimeMs = getMatchStartTimeMs(match);
+  const now = new Date().getTime();
+  const endTimeMs = startTimeMs + 2 * 60 * 60 * 1000; // 2 hours match duration
+
+  if (now < startTimeMs) {
     return "upcoming";
-  } else if (now >= startTime && now < endTime) {
+  } else if (now >= startTimeMs && now < endTimeMs) {
     return "live";
   } else {
     return "completed";
