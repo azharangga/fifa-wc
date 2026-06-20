@@ -125,7 +125,7 @@ export function HomeCarousel({ data }: { data: WorldCupData }) {
           <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-transparent to-transparent z-10 hidden sm:block" />
  
           <div className="absolute inset-0 z-20 flex items-center justify-start">
-            <div className="max-w-6xl mx-auto w-full px-4">
+            <div className="max-w-7xl mx-auto w-full px-4">
               {slides[currentSlide].type === "match" && slides[currentSlide].match ? (
                 <div className="space-y-4 sm:space-y-5 text-left max-w-3xl">
                   {/* Badges row */}

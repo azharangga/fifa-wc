@@ -59,7 +59,7 @@ export default function TeamsPage() {
   }
 
   return (
-    <PageTransition className="max-w-6xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
+    <PageTransition className="max-w-7xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
       <ShimmerStyle />
       {/* Hero */}
       <div style={{ paddingBottom: "32px" }}>

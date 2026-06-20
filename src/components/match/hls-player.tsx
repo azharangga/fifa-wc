@@ -323,14 +323,36 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
 
       {/* ── Loading State ── */}
       {isLoading && !error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/95 gap-4 z-20">
-          <div className="relative">
-            <div className="w-12 h-12 rounded-full border-2 border-white/10" />
-            <Loader2 className="absolute inset-0 h-12 w-12 animate-spin text-white/70" />
+        <div className="absolute inset-0 bg-[#0c0c0c] z-20 flex flex-col justify-between p-4 select-none">
+          {/* Top bar skeleton */}
+          <div className="flex justify-between items-center w-full">
+            <div className="flex gap-2">
+              <div className="w-12 h-5 rounded bg-white/5 animate-pulse" />
+              <div className="w-10 h-5 rounded bg-white/5 animate-pulse" />
+              <div className="w-14 h-5 rounded bg-white/5 animate-pulse" />
+            </div>
+            <div className="w-28 h-5 rounded bg-white/5 animate-pulse" />
           </div>
-          <div className="text-center">
-            <p className="text-xs font-semibold text-white/60 tracking-widest uppercase">{t("connectingFeed")}</p>
-            <p className="text-[10px] text-white/30 mt-1">{t("initializingStream")}</p>
+          {/* Center Play Button Skeleton */}
+          <div className="flex items-center justify-center">
+            <div className="w-[76px] h-[76px] rounded-full bg-white/5 animate-pulse" />
+          </div>
+          {/* Bottom Bar Skeleton */}
+          <div className="w-full space-y-3">
+            <div className="w-full h-1 rounded bg-white/5 animate-pulse" />
+            <div className="flex justify-between items-center">
+              <div className="flex gap-3">
+                <div className="w-8 h-8 rounded bg-white/5 animate-pulse" />
+                <div className="w-8 h-8 rounded bg-white/5 animate-pulse" />
+                <div className="w-8 h-8 rounded bg-white/5 animate-pulse" />
+                <div className="w-20 h-4 rounded bg-white/5 animate-pulse self-center" />
+              </div>
+              <div className="flex gap-3">
+                <div className="w-12 h-8 rounded bg-white/5 animate-pulse" />
+                <div className="w-8 h-8 rounded bg-white/5 animate-pulse" />
+                <div className="w-8 h-8 rounded bg-white/5 animate-pulse" />
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -27,7 +27,7 @@ export function Header() {
         height: "56px",
       }}
     >
-      <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] gap-4">
+      <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] gap-4">
         {/* Brand mark — monochrome */}
         <Link
           href="/"

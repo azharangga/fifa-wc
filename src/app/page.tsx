@@ -130,7 +130,7 @@ export default function Home() {
       )}
 
       {/* ─── Dashboard Rails ─ 96px section spacing per DESIGN.md ─────── */}
-      <div className="max-w-6xl mx-auto px-4" style={{ paddingTop: "96px", paddingBottom: "96px" }}>
+      <div className="max-w-7xl mx-auto px-4" style={{ paddingTop: "96px", paddingBottom: "96px" }}>
         <div className="space-y-24">
           {/* Tournament Insights Section */}
           <div className="space-y-6">

@@ -79,7 +79,7 @@ export default function TeamDetailPage() {
   const flagUrl = team ? getCountryFlagUrl(team.name) : null;
 
   return (
-    <PageTransition className="max-w-6xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
+    <PageTransition className="max-w-7xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
       <ShimmerStyle />
       {/* Back link */}
       <div style={{ marginBottom: "24px" }}>

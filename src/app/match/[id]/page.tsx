@@ -13,6 +13,8 @@ import { ChannelSelector, StreamChannel } from "@/components/match/channel-selec
 import { MatchScoreCard } from "@/components/match/match-score-card";
 import { useTranslation } from "@/components/layout/language-provider";
 
+import { MatchDetailSkeleton } from "@/components/layout/loading-state";
+
 const STREAM_CHANNELS: StreamChannel[] = [
   { id: "rtbgo", name: "RTB Go", quality: "HD 720p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTBGO || "https://d1211whpimeups.cloudfront.net/smil:rtbgo/chunklist_b4096000_slENG.m3u8" },
   { id: "rtb2", name: "RTB 2", quality: "HD 720p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTB2 || "https://d1211whpimeups.cloudfront.net/smil:rtb2/playlist.m3u8" },
@@ -47,14 +49,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   const match = data?.matches.find((m) => m.id === id);
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 gap-4">
-        <Loader2 className="h-10 w-10 animate-spin" style={{ color: "var(--foreground)" }} />
-        <p style={{ color: "var(--muted-foreground)", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.14px" }}>
-          {t("connectingLiveLines")}
-        </p>
-      </div>
-    );
+    return <MatchDetailSkeleton />;
   }
 
   if (error || !data || !match) {
@@ -75,7 +70,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   const status = getMatchStatus(match);
 
   return (
-    <PageTransition className="max-w-6xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
+    <PageTransition className="max-w-7xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
       <div className="space-y-8">
         {/* Top row: back + badges */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
