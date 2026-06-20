@@ -146,7 +146,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Footer
     footerDesc: "Your destination for the 2026 FIFA World Cup. Live scores, standings, bracket results, and live match streaming.",
-    footerCopyright: "© 2026 World Cup 2026. All rights reserved.",
+    footerCopyright: "© 2026 Azharangga Kusuma. All rights reserved.",
     footerCredits: "Match data by openfootball",
 
     // Teams
@@ -322,7 +322,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Footer
     footerDesc: "Destinasi terlengkap Piala Dunia FIFA 2026. Skor langsung, klasemen, hasil fase gugur, dan streaming pertandingan live.",
-    footerCopyright: "© 2026 World Cup 2026. Seluruh hak dilindungi.",
+    footerCopyright: "© 2026 Azharangga Kusuma. Seluruh hak dilindungi.",
     footerCredits: "Data pertandingan oleh openfootball",
 
     // Teams
