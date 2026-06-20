@@ -66,6 +66,7 @@ export function Footer() {
                 { label: t("home"), href: "/" },
                 { label: t("standing"), href: "/standing" },
                 { label: t("schedule"), href: "/schedule" },
+                { label: t("teams"), href: "/teams" },
                 { label: t("knockout"), href: "/knockout" },
               ].map((item) => (
                 <li key={item.href}>
