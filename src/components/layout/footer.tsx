@@ -53,7 +53,7 @@ export function Footer() {
             {/* Social Media Links */}
             <div className="flex items-center gap-2.5 pt-1.5">
               <a
-                href="https://github.com"
+                href="https://github.com/azharangga"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-85 transition-opacity"
@@ -72,7 +72,7 @@ export function Footer() {
                 <Github className="h-3.5 w-3.5" />
               </a>
               <a
-                href="https://linkedin.com"
+                href="https://linkedin.com/azharanggakusuma"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-85 transition-opacity"
@@ -91,7 +91,7 @@ export function Footer() {
                 <Linkedin className="h-3.5 w-3.5" />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://instagram.com/azharangga_kusuma"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-85 transition-opacity"
@@ -110,7 +110,7 @@ export function Footer() {
                 <Instagram className="h-3.5 w-3.5" />
               </a>
               <a
-                href="mailto:azharangga.kusuma@gmail.com"
+                href="mailto:azharanggakusuma01@gmail.com"
                 className="hover:opacity-85 transition-opacity"
                 style={{
                   backgroundColor: "var(--foreground)",
