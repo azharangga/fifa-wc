@@ -55,3 +55,30 @@ export interface KnockoutRound {
   name: string;
   matches: Match[];
 }
+
+export interface Player {
+  number: number;
+  pos: string;
+  name: string;
+  club: { name: string; country: string };
+  date_of_birth: string;
+}
+
+export interface Team {
+  name: string;
+  fifa_code: string;
+  group: string;
+  confed: string;
+  continent: string;
+  flag_icon: string;
+  players: Player[];
+}
+
+export interface Stadium {
+  name: string;
+  city: string;
+  cc: string;
+  capacity: number;
+  timezone: string;
+  coords: string;
+}

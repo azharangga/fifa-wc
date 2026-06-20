@@ -50,7 +50,7 @@ export default function GroupsPage() {
   }
 
   return (
-    <PageTransition className="max-w-6xl mx-auto px-4" style={{ paddingTop: "96px", paddingBottom: "96px" }}>
+    <PageTransition className="max-w-6xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
       <div className="space-y-12">
         {/* Page header */}
         <div className="flex items-center gap-3">

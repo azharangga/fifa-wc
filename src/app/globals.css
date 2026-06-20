@@ -69,8 +69,8 @@
   --muted: #f0f0f0;
   --muted-foreground: #666666;
 
-  --accent: #0099ff;
-  --accent-foreground: #ffffff;
+  --accent: #e8e8e8;
+  --accent-foreground: #090909;
 
   --destructive: #ef4444;
   --border: #e2e8f0;
@@ -117,13 +117,13 @@
   --muted: #141414;
   --muted-foreground: #999999;
 
-  --accent: #0099ff;
+  --accent: #262626;
   --accent-foreground: #ffffff;
 
   --destructive: #ef4444;
   --border: #262626;
   --input: #262626;
-  --ring: #0099ff;
+  --ring: #404040;
 
   /* DESIGN.md Anchors — Dark */
   --accent-blue: #0099ff;

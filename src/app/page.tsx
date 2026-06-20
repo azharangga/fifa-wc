@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Calendar, Tv, Trophy, ArrowRight, Sparkles } from "lucide-react";
+import { Calendar, Tv, Trophy, ArrowRight, Sparkles, MapPin, Clock, Users } from "lucide-react";
 import Link from "next/link";
 import { StatsBanner } from "@/components/home/stats-banner";
 import { TopScorers } from "@/components/standing/top-scorers";
 import { MatchCard } from "@/components/match/match-card";
-import { WorldCupData } from "@/lib/types";
+import { WorldCupData, Stadium } from "@/lib/types";
 import { getMatchStatus, organizeGroups } from "@/lib/data";
 import { PageTransition } from "@/components/layout/page-transition";
 import { GroupTable } from "@/components/standing/group-table";
@@ -18,18 +18,25 @@ import { useTranslation } from "@/components/layout/language-provider";
 
 export default function Home() {
   const [data, setData] = useState<WorldCupData | null>(null);
+  const [stadiums, setStadiums] = useState<Stadium[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation();
 
   useEffect(() => {
-    fetch("/api/worldcup")
-      .then((res) => {
+    Promise.all([
+      fetch("/api/worldcup").then((res) => {
         if (!res.ok) throw new Error("Failed to fetch matches");
         return res.json();
-      })
-      .then((d: WorldCupData) => {
-        setData(d);
+      }),
+      fetch("/api/stadiums").then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch stadiums");
+        return res.json();
+      }),
+    ])
+      .then(([wcData, stadiumsData]: [WorldCupData, Stadium[]]) => {
+        setData(wcData);
+        setStadiums(stadiumsData);
         setLoading(false);
       })
       .catch((err) => {
@@ -268,6 +275,111 @@ export default function Home() {
           </div>
 
           <ThirdPlaceRanking thirdPlaceStandings={thirdPlaceStandings} />
+
+          {/* Stadiums Table */}
+          {stadiums.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div
+                  className="p-2 flex items-center justify-center"
+                  style={{ backgroundColor: "var(--card)", borderRadius: "10px", border: "1px solid var(--border)" }}
+                >
+                  <MapPin className="h-4 w-4" style={{ color: "var(--foreground)" }} />
+                </div>
+                <h3
+                  style={{
+                    fontSize: "clamp(1.5rem, 3vw, 2rem)",
+                    fontWeight: 500,
+                    lineHeight: 1.13,
+                    letterSpacing: "-1px",
+                    color: "var(--foreground)",
+                  }}
+                >
+                  {t("stadiumsTitle")}
+                </h3>
+              </div>
+              <div
+                style={{
+                  backgroundColor: "var(--card)",
+                  borderRadius: "20px",
+                  border: "1px solid var(--border)",
+                  overflow: "hidden",
+                }}
+              >
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr
+                        className="text-xs uppercase tracking-wider"
+                        style={{ borderBottom: "1px solid var(--border)", color: "var(--muted-foreground)" }}
+                      >
+                        <th className="text-left py-3 px-4 font-semibold">#</th>
+                        <th className="text-left py-3 px-4 font-semibold">{t("stadiums") === "Stadion" ? "Stadion" : "Stadium"}</th>
+                        <th className="text-left py-3 px-4 font-semibold">{t("hostCity")}</th>
+                        <th className="text-right py-3 px-4 font-semibold">{t("capacity")}</th>
+                        <th className="text-left py-3 px-4 font-semibold">{t("timezone")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stadiums.map((s, i) => {
+                        const countryFlag = s.cc === "us" ? "🇺🇸" : s.cc === "mx" ? "🇲🇽" : "🇨🇦";
+                        return (
+                          <tr
+                            key={s.name}
+                            className="transition-colors hover:bg-[var(--hover-bg)]"
+                            style={{ borderBottom: i < stadiums.length - 1 ? "1px solid var(--border)" : "none" }}
+                          >
+                            <td className="py-2.5 px-4">
+                              <span
+                                className="inline-flex items-center justify-center font-bold"
+                                style={{
+                                  width: "24px",
+                                  height: "24px",
+                                  borderRadius: "6px",
+                                  backgroundColor: "var(--muted)",
+                                  color: "var(--muted-foreground)",
+                                  fontSize: "11px",
+                                }}
+                              >
+                                {i + 1}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-4 font-medium" style={{ color: "var(--foreground)", letterSpacing: "-0.14px" }}>
+                              {s.name}
+                            </td>
+                            <td className="py-2.5 px-4" style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>
+                              <span className="inline-flex items-center gap-1.5">
+                                <span>{countryFlag}</span>
+                                <span>{s.city}</span>
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-4 text-right font-bold tabular-nums" style={{ color: "var(--foreground)", fontSize: "13px" }}>
+                              {s.capacity.toLocaleString()}
+                            </td>
+                            <td className="py-2.5 px-4" style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>
+                              <span className="inline-flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {s.timezone}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Summary footer */}
+                <div
+                  className="flex items-center justify-center gap-6 py-3 text-xs"
+                  style={{ borderTop: "1px solid var(--border)", color: "var(--muted-foreground)" }}
+                >
+                  <span className="inline-flex items-center gap-1">🇺🇸 {stadiums.filter((s) => s.cc === "us").length} USA</span>
+                  <span className="inline-flex items-center gap-1">🇲🇽 {stadiums.filter((s) => s.cc === "mx").length} Mexico</span>
+                  <span className="inline-flex items-center gap-1">🇨🇦 {stadiums.filter((s) => s.cc === "ca").length} Canada</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </PageTransition>

@@ -272,7 +272,7 @@ export function getCountryFlagUrl(teamName: string): string {
     "Poland": "pl", "Croatia": "hr", "Denmark": "dk", "Serbia": "rs",
     "England": "gb-eng", "Italy": "it", "Romania": "ro", "Greece": "gr",
     "Congo": "cg", "Guinea": "gn", "Mali": "ml", "Gabon": "ga",
-    "Venezuela": "ve", "Honduras": "hn"
+    "Venezuela": "ve", "Honduras": "hn", "Ghana": "gh",
   };
 
   // For placeholder teams like "1A", "2B", "W73", etc.
@@ -307,7 +307,7 @@ export function getCountryFlag(teamName: string): string {
     "Poland": "🇵🇱", "Croatia": "🇭🇷", "Denmark": "🇩🇰", "Serbia": "🇷🇸",
     "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Italy": "🇮🇹", "Romania": "🇷🇴", "Greece": "🇬🇷",
     "Congo": "🇨🇬", "Guinea": "🇬🇳", "Mali": "🇲🇱", "Gabon": "🇬🇦",
-    "Venezuela": "🇻🇪", "Honduras": "🇭🇳",
+    "Venezuela": "🇻🇪", "Honduras": "🇭🇳", "Ghana": "🇬🇭",
   };
 
   if (/^[12][A-Z]$/.test(teamName) || /^W\d+$/.test(teamName) || /^L\d+$/.test(teamName) || teamName.includes(" vs ")) {

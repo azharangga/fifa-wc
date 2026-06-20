@@ -71,7 +71,7 @@ export default function DateSchedulePage() {
   const formattedDate = dateStr ? formatDate(dateStr, lang) : (isId ? "Tanggal Terpilih" : "Selected Date");
 
   return (
-    <PageTransition className="max-w-6xl mx-auto px-4" style={{ paddingTop: "96px", paddingBottom: "96px" }}>
+    <PageTransition className="max-w-6xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
       <div className="space-y-12">
         {/* Back button */}
         <button onClick={() => router.push("/schedule")} className="btn-secondary" style={{ gap: "8px" }}>

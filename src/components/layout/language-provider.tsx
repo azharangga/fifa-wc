@@ -147,7 +147,39 @@ const translations: Record<Language, Record<string, string>> = {
     // Footer
     footerDesc: "Your destination for the 2026 FIFA World Cup. Live scores, standings, bracket results, and live match streaming.",
     footerCopyright: "© 2026 World Cup 2026. All rights reserved.",
-    footerCredits: "Match data by openfootball"
+    footerCredits: "Match data by openfootball",
+
+    // Teams
+    teams: "Teams",
+    teamsTitle: "48 Qualified Teams",
+    teamsSubtitle: "All participating nations across 12 groups and 6 confederations.",
+    allConfederations: "All",
+    allGroups: "All Groups",
+    searchTeams: "Search teams...",
+    noTeamsFound: "No teams found matching your filters.",
+
+    // Team Detail
+    squad: "Squad",
+    position: "Position",
+    club: "Club",
+    age: "Age",
+    goalkeeper: "Goalkeepers",
+    defender: "Defenders",
+    midfielder: "Midfielders",
+    forward: "Forwards",
+    groupMatches: "Group Stage Matches",
+    playerCount: "{count} players",
+
+    // Stadiums
+    stadiums: "Stadiums",
+    stadiumsTitle: "16 Venues Across 3 Nations",
+    stadiumsSubtitle: "World-class stadiums hosting the biggest tournament in football history.",
+    capacity: "Capacity",
+    timezone: "Timezone",
+    hostCity: "Host City",
+    allCountries: "All",
+    noStadiumsFound: "No stadiums found.",
+    seats: "seats",
   },
   id: {
     // Nav & Common
@@ -291,7 +323,39 @@ const translations: Record<Language, Record<string, string>> = {
     // Footer
     footerDesc: "Destinasi terlengkap Piala Dunia FIFA 2026. Skor langsung, klasemen, hasil fase gugur, dan streaming pertandingan live.",
     footerCopyright: "© 2026 World Cup 2026. Seluruh hak dilindungi.",
-    footerCredits: "Data pertandingan oleh openfootball"
+    footerCredits: "Data pertandingan oleh openfootball",
+
+    // Teams
+    teams: "Tim",
+    teamsTitle: "48 Tim Lolos Kualifikasi",
+    teamsSubtitle: "Seluruh negara peserta di 12 grup dan 6 konfederasi.",
+    allConfederations: "Semua",
+    allGroups: "Semua Grup",
+    searchTeams: "Cari tim...",
+    noTeamsFound: "Tidak ada tim yang cocok dengan filter Anda.",
+
+    // Team Detail
+    squad: "Skuad",
+    position: "Posisi",
+    club: "Klub",
+    age: "Usia",
+    goalkeeper: "Kiper",
+    defender: "Bek",
+    midfielder: "Gelandang",
+    forward: "Penyerang",
+    groupMatches: "Pertandingan Fase Grup",
+    playerCount: "{count} pemain",
+
+    // Stadiums
+    stadiums: "Stadion",
+    stadiumsTitle: "16 Venue di 3 Negara",
+    stadiumsSubtitle: "Stadion berkelas dunia yang menjadi tuan rumah turnamen sepak bola terbesar dalam sejarah.",
+    capacity: "Kapasitas",
+    timezone: "Zona Waktu",
+    hostCity: "Kota Tuan Rumah",
+    allCountries: "Semua",
+    noStadiumsFound: "Tidak ada stadion ditemukan.",
+    seats: "kursi",
   }
 };
 

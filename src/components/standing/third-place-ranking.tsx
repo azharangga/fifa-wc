@@ -1,6 +1,7 @@
 "use client";
 
 import { Trophy } from "lucide-react";
+import Link from "next/link";
 import { getCountryFlagUrl } from "@/lib/data";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { useTranslation } from "../layout/language-provider";
@@ -131,12 +132,13 @@ export function ThirdPlaceRanking({ thirdPlaceStandings }: ThirdPlaceRankingProp
                              <span style={{ fontSize: "10px" }}>🏆</span>
                            )}
                          </div>
-                         <span
-                           className="truncate block"
+                         <Link
+                           href={`/teams/${encodeURIComponent(team.team)}`}
+                           className="truncate block hover:underline"
                            style={{ color: "var(--foreground)", fontSize: "14px", fontWeight: 700, letterSpacing: "-0.14px" }}
                          >
                            {team.team}
-                         </span>
+                         </Link>
                        </div>
                      </td>
                     <td

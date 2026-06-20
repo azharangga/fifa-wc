@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Trophy, Calendar, Home } from "lucide-react";
+import { LayoutGrid, Trophy, Calendar, Home, Users } from "lucide-react";
 import { useTranslation } from "./language-provider";
 
 const links = [
   { href: "/", labelKey: "home" as const, icon: Home },
   { href: "/standing", labelKey: "standing" as const, icon: LayoutGrid },
   { href: "/schedule", labelKey: "schedule" as const, icon: Calendar },
+  { href: "/teams", labelKey: "teams" as const, icon: Users },
   { href: "/knockout", labelKey: "knockout" as const, icon: Trophy },
 ];
 

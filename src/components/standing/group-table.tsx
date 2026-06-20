@@ -129,12 +129,13 @@ export function GroupTable({
                             <span style={{ fontSize: "10px" }}>🏆</span>
                           )}
                         </div>
-                        <span
-                          className="truncate block"
+                        <Link
+                          href={`/teams/${encodeURIComponent(team.team)}`}
+                          className="truncate block hover:underline"
                           style={{ color: "var(--foreground)", fontSize: "13px", fontWeight: 700, letterSpacing: "-0.13px" }}
                         >
                           {team.team}
-                        </span>
+                        </Link>
                       </div>
                     </td>
                     {[team.played, team.won, team.drawn, team.lost].map((val, i) => (

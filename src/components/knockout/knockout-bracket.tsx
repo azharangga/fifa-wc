@@ -22,6 +22,22 @@ function ShieldIcon({ className }: { className?: string }) {
   );
 }
 
+function EmptyBracketSlot() {
+  return (
+    <div
+      className="w-[200px] p-3 flex items-center justify-center backdrop-blur-md"
+      style={{
+        backgroundColor: "var(--card)",
+        border: "1px dashed var(--border)",
+        borderRadius: "14px",
+        height: "72px",
+      }}
+    >
+      <span style={{ fontSize: "18px", fontWeight: 700, color: "var(--muted-foreground)" }}>—</span>
+    </div>
+  );
+}
+
 function BracketMatchCard({
   match,
   hoveredTeam,
@@ -223,22 +239,28 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
   };
 
   // Render orthogonal SVG lines
+  // Computed column X positions (200px card + 16px gap = 216px step)
+  const COL_STEP = 216;
+  const COL_W = 200;
+  const CENTER_W = 220;
+  const LX = [0, COL_STEP, COL_STEP * 2, COL_STEP * 3]; // Left: R32, R16, QF, SF
+  const CX = COL_STEP * 4; // Center (Finals)
+  const RX = [CX + CENTER_W + 16, CX + CENTER_W + 16 + COL_STEP, CX + CENTER_W + 16 + COL_STEP * 2, CX + CENTER_W + 16 + COL_STEP * 3]; // Right: SF, QF, R16, R32
+  const TOTAL_W = RX[3] + COL_W;
+
   const renderSVGConnector = () => {
     const paths: { d: string; active: boolean }[] = [];
+    const mid = (x1: number, x2: number) => Math.round((x1 + x2) / 2);
 
-    // Left Wing coordinates (X columns: 0, 232, 464, 696, 928 for Final)
     // Left R32 -> Left R16
     for (let j = 0; j < 4; j++) {
-      const yFrom1 = 120 + (j * 2 * 200 + 100); // Match 2j
-      const yFrom2 = 120 + ((j * 2 + 1) * 200 + 100); // Match 2j+1
-      const yTo = 120 + (j * 400 + 200); // R16 Match j
-
-      const match1 = leftWing.r32[j * 2];
-      const match2 = leftWing.r32[j * 2 + 1];
-      const destMatch = leftWing.r16[j];
-
-      paths.push({ d: `M 200,${yFrom1} H 216 V ${yTo} H 232`, active: isPathActive(match1, destMatch) });
-      paths.push({ d: `M 200,${yFrom2} H 216 V ${yTo} H 232`, active: isPathActive(match2, destMatch) });
+      const yFrom1 = 120 + (j * 2 * 200 + 100);
+      const yFrom2 = 120 + ((j * 2 + 1) * 200 + 100);
+      const yTo = 120 + (j * 400 + 200);
+      const x1 = LX[0] + COL_W, x2 = LX[1], mx = mid(x1, x2);
+      const match1 = leftWing.r32[j * 2], match2 = leftWing.r32[j * 2 + 1], destMatch = leftWing.r16[j];
+      paths.push({ d: `M ${x1},${yFrom1} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match1, destMatch) });
+      paths.push({ d: `M ${x1},${yFrom2} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match2, destMatch) });
     }
 
     // Left R16 -> Left QF
@@ -246,56 +268,39 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
       const yFrom1 = 120 + (k * 2 * 400 + 200);
       const yFrom2 = 120 + ((k * 2 + 1) * 400 + 200);
       const yTo = 120 + (k * 800 + 400);
-
-      const match1 = leftWing.r16[k * 2];
-      const match2 = leftWing.r16[k * 2 + 1];
-      const destMatch = leftWing.qf[k];
-
-      paths.push({ d: `M 432,${yFrom1} H 448 V ${yTo} H 464`, active: isPathActive(match1, destMatch) });
-      paths.push({ d: `M 432,${yFrom2} H 448 V ${yTo} H 464`, active: isPathActive(match2, destMatch) });
+      const x1 = LX[1] + COL_W, x2 = LX[2], mx = mid(x1, x2);
+      const match1 = leftWing.r16[k * 2], match2 = leftWing.r16[k * 2 + 1], destMatch = leftWing.qf[k];
+      paths.push({ d: `M ${x1},${yFrom1} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match1, destMatch) });
+      paths.push({ d: `M ${x1},${yFrom2} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match2, destMatch) });
     }
 
     // Left QF -> Left SF
     {
-      const yFrom1 = 120 + 400;
-      const yFrom2 = 120 + 1200;
-      const yTo = 120 + 800;
-
-      const match1 = leftWing.qf[0];
-      const match2 = leftWing.qf[1];
-      const destMatch = leftWing.sf[0];
-
-      paths.push({ d: `M 664,${yFrom1} H 680 V ${yTo} H 696`, active: isPathActive(match1, destMatch) });
-      paths.push({ d: `M 664,${yFrom2} H 680 V ${yTo} H 696`, active: isPathActive(match2, destMatch) });
+      const yFrom1 = 120 + 400, yFrom2 = 120 + 1200, yTo = 120 + 800;
+      const x1 = LX[2] + COL_W, x2 = LX[3], mx = mid(x1, x2);
+      const match1 = leftWing.qf[0], match2 = leftWing.qf[1], destMatch = leftWing.sf[0];
+      paths.push({ d: `M ${x1},${yFrom1} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match1, destMatch) });
+      paths.push({ d: `M ${x1},${yFrom2} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match2, destMatch) });
     }
 
     // Left SF -> Final / Third Place
     if (leftWing.sf[0]) {
-      const yFrom = 120 + 800;
-      const yFinal = 120 + 600;
-      const yThird = 120 + 1000;
-
-      const sfMatch = leftWing.sf[0];
-      const fMatch = final[0];
-      const tMatch = thirdPlace[0];
-
-      paths.push({ d: `M 896,${yFrom} H 912 V ${yFinal} H 948`, active: isPathActive(sfMatch, fMatch) });
-      paths.push({ d: `M 896,${yFrom} H 912 V ${yThird} H 948`, active: isPathActive(sfMatch, tMatch) });
+      const yFrom = 120 + 800, yFinal = 120 + 600, yThird = 120 + 1000;
+      const x1 = LX[3] + COL_W, x2 = CX, mx = mid(x1, x2);
+      const sfMatch = leftWing.sf[0], fMatch = final[0], tMatch = thirdPlace[0];
+      paths.push({ d: `M ${x1},${yFrom} H ${mx} V ${yFinal} H ${x2}`, active: isPathActive(sfMatch, fMatch) });
+      paths.push({ d: `M ${x1},${yFrom} H ${mx} V ${yThird} H ${x2}`, active: isPathActive(sfMatch, tMatch) });
     }
 
-    // Right Wing coordinates (X columns: 2096, 1864, 1632, 1400, 1168 for Final)
     // Right R32 -> Right R16
     for (let j = 0; j < 4; j++) {
       const yFrom1 = 120 + (j * 2 * 200 + 100);
       const yFrom2 = 120 + ((j * 2 + 1) * 200 + 100);
       const yTo = 120 + (j * 400 + 200);
-
-      const match1 = rightWing.r32[j * 2];
-      const match2 = rightWing.r32[j * 2 + 1];
-      const destMatch = rightWing.r16[j];
-
-      paths.push({ d: `M 1896,${yFrom1} H 1880 V ${yTo} H 1864`, active: isPathActive(match1, destMatch) });
-      paths.push({ d: `M 1896,${yFrom2} H 1880 V ${yTo} H 1864`, active: isPathActive(match2, destMatch) });
+      const x1 = RX[3], x2 = RX[2] + COL_W, mx = mid(x1, x2);
+      const match1 = rightWing.r32[j * 2], match2 = rightWing.r32[j * 2 + 1], destMatch = rightWing.r16[j];
+      paths.push({ d: `M ${x1},${yFrom1} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match1, destMatch) });
+      paths.push({ d: `M ${x1},${yFrom2} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match2, destMatch) });
     }
 
     // Right R16 -> Right QF
@@ -303,41 +308,28 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
       const yFrom1 = 120 + (k * 2 * 400 + 200);
       const yFrom2 = 120 + ((k * 2 + 1) * 400 + 200);
       const yTo = 120 + (k * 800 + 400);
-
-      const match1 = rightWing.r16[k * 2];
-      const match2 = rightWing.r16[k * 2 + 1];
-      const destMatch = rightWing.qf[k];
-
-      paths.push({ d: `M 1664,${yFrom1} H 1648 V ${yTo} H 1632`, active: isPathActive(match1, destMatch) });
-      paths.push({ d: `M 1664,${yFrom2} H 1648 V ${yTo} H 1632`, active: isPathActive(match2, destMatch) });
+      const x1 = RX[2], x2 = RX[1] + COL_W, mx = mid(x1, x2);
+      const match1 = rightWing.r16[k * 2], match2 = rightWing.r16[k * 2 + 1], destMatch = rightWing.qf[k];
+      paths.push({ d: `M ${x1},${yFrom1} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match1, destMatch) });
+      paths.push({ d: `M ${x1},${yFrom2} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match2, destMatch) });
     }
 
     // Right QF -> Right SF
     {
-      const yFrom1 = 120 + 400;
-      const yFrom2 = 120 + 1200;
-      const yTo = 120 + 800;
-
-      const match1 = rightWing.qf[0];
-      const match2 = rightWing.qf[1];
-      const destMatch = rightWing.sf[0];
-
-      paths.push({ d: `M 1432,${yFrom1} H 1416 V ${yTo} H 1400`, active: isPathActive(match1, destMatch) });
-      paths.push({ d: `M 1432,${yFrom2} H 1416 V ${yTo} H 1400`, active: isPathActive(match2, destMatch) });
+      const yFrom1 = 120 + 400, yFrom2 = 120 + 1200, yTo = 120 + 800;
+      const x1 = RX[1], x2 = RX[0] + COL_W, mx = mid(x1, x2);
+      const match1 = rightWing.qf[0], match2 = rightWing.qf[1], destMatch = rightWing.sf[0];
+      paths.push({ d: `M ${x1},${yFrom1} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match1, destMatch) });
+      paths.push({ d: `M ${x1},${yFrom2} H ${mx} V ${yTo} H ${x2}`, active: isPathActive(match2, destMatch) });
     }
 
     // Right SF -> Final / Third Place
     if (rightWing.sf[0]) {
-      const yFrom = 120 + 800;
-      const yFinal = 120 + 600;
-      const yThird = 120 + 1000;
-
-      const sfMatch = rightWing.sf[0];
-      const fMatch = final[0];
-      const tMatch = thirdPlace[0];
-
-      paths.push({ d: `M 1200,${yFrom} H 1184 V ${yFinal} H 1148`, active: isPathActive(sfMatch, fMatch) });
-      paths.push({ d: `M 1200,${yFrom} H 1184 V ${yThird} H 1148`, active: isPathActive(sfMatch, tMatch) });
+      const yFrom = 120 + 800, yFinal = 120 + 600, yThird = 120 + 1000;
+      const x1 = RX[0], x2 = CX + CENTER_W, mx = mid(x1, x2);
+      const sfMatch = rightWing.sf[0], fMatch = final[0], tMatch = thirdPlace[0];
+      paths.push({ d: `M ${x1},${yFrom} H ${mx} V ${yFinal} H ${x2}`, active: isPathActive(sfMatch, fMatch) });
+      paths.push({ d: `M ${x1},${yFrom} H ${mx} V ${yThird} H ${x2}`, active: isPathActive(sfMatch, tMatch) });
     }
 
     return (
@@ -409,8 +401,8 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
       </div>
 
       {activeTab === "bracket" ? (
-        <div className="overflow-x-auto pb-8 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none select-none">
-          <div className="relative w-[2100px] py-4" style={{ height: "1820px" }}>
+        <div className="overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 select-none" style={{ scrollbarWidth: "thin", scrollbarColor: "var(--border) transparent" }}>
+          <div className="relative py-4" style={{ width: `${TOTAL_W}px`, height: "1820px" }}>
             {/* SVG Connector Lines */}
             {renderSVGConnector()}
  
@@ -419,7 +411,7 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               
               {/* ─── LEFT WING ─── */}
               {/* L1: Round of 32 */}
-              <div className="absolute w-[200px] pointer-events-auto" style={{ left: "0px", height: "1600px", marginTop: "120px" }}>
+              <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${LX[0]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("round32").toUpperCase()}</span>
                   <p className="text-[11px] font-bold text-foreground mt-0.5">{leftWing.r32.length} {isId ? "Laga" : "Matches"}</p>
@@ -432,7 +424,7 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               </div>
 
               {/* L2: Round of 16 */}
-              <div className="absolute w-[200px] pointer-events-auto" style={{ left: "232px", height: "1600px", marginTop: "120px" }}>
+              <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${LX[1]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("round16").toUpperCase()}</span>
                   <p className="text-[11px] font-bold text-foreground mt-0.5">{leftWing.r16.length} {isId ? "Laga" : "Matches"}</p>
@@ -445,7 +437,7 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               </div>
 
               {/* L3: Quarter-final */}
-              <div className="absolute w-[200px] pointer-events-auto" style={{ left: "464px", height: "1600px", marginTop: "120px" }}>
+              <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${LX[2]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("quarterfinals").toUpperCase()}</span>
                   <p className="text-[11px] font-bold text-foreground mt-0.5">{leftWing.qf.length} {isId ? "Laga" : "Matches"}</p>
@@ -458,7 +450,7 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               </div>
 
               {/* L4: Semi-final */}
-              <div className="absolute w-[200px] pointer-events-auto" style={{ left: "696px", height: "1600px", marginTop: "120px" }}>
+              <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${LX[3]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("semifinals").toUpperCase()}</span>
                   <p className="text-[11px] font-bold text-foreground mt-0.5">{leftWing.sf.length} {isId ? "Laga" : "Match"}</p>
@@ -471,15 +463,19 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               </div>
 
               {/* ─── CENTER COLUMN (Finals) ─── */}
-              <div className="absolute w-[240px] pointer-events-auto" style={{ left: "928px", height: "1600px", marginTop: "120px" }}>
+              <div className="absolute pointer-events-auto" style={{ left: `${CX}px`, width: `${CENTER_W}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-full text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{isId ? "KEJUARAAN" : "CHAMPIONSHIP"}</span>
-                  <p className="text-[11px] font-bold text-foreground mt-0.5">{isId ? "Babak Final" : "The Finals"}</p>
+                  <p className="text-[11px] font-bold text-foreground mt-0.5">
+                    {final.length + thirdPlace.length > 0 
+                      ? `${final.length + thirdPlace.length} ${isId ? "Laga" : "Matches"}`
+                      : "-"}
+                  </p>
                 </div>
                 
-                {/* Final Card Container */}
-                {final.map((match) => (
-                  <div key={match.id} className="absolute" style={{ left: "20px", top: "600px", transform: "translateY(-50%)" }}>
+                {/* Final Card */}
+                {final.length > 0 ? final.map((match) => (
+                  <div key={match.id} className="absolute" style={{ left: `${(CENTER_W - COL_W) / 2}px`, top: "600px", transform: "translateY(-50%)" }}>
                     <div className="absolute top-[-36px] left-1/2 -translate-x-1/2 w-full text-center select-none pointer-events-none">
                       <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-yellow-500 uppercase tracking-widest bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20 whitespace-nowrap">
                         <Trophy className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
@@ -488,11 +484,21 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
                     </div>
                     <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} />
                   </div>
-                ))}
+                )) : (
+                  <div className="absolute" style={{ left: `${(CENTER_W - COL_W) / 2}px`, top: "600px", transform: "translateY(-50%)" }}>
+                    <div className="absolute top-[-36px] left-1/2 -translate-x-1/2 w-full text-center select-none pointer-events-none">
+                      <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-yellow-500 uppercase tracking-widest bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20 whitespace-nowrap">
+                        <Trophy className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
+                        <span>{t("final").toUpperCase()}</span>
+                      </span>
+                    </div>
+                    <EmptyBracketSlot />
+                  </div>
+                )}
 
-                {/* Third Place Card Container */}
-                {thirdPlace.map((match) => (
-                  <div key={match.id} className="absolute" style={{ left: "20px", top: "1000px", transform: "translateY(-50%)" }}>
+                {/* Third Place Card */}
+                {thirdPlace.length > 0 ? thirdPlace.map((match) => (
+                  <div key={match.id} className="absolute" style={{ left: `${(CENTER_W - COL_W) / 2}px`, top: "1000px", transform: "translateY(-50%)" }}>
                     <div className="absolute top-[-32px] left-1/2 -translate-x-1/2 w-full text-center select-none pointer-events-none">
                       <span className="text-[9px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider bg-[var(--tint-bg)] px-2.5 py-1 rounded-full border border-[var(--border)] whitespace-nowrap">
                         {t("thirdPlacePlayoff")}
@@ -500,12 +506,21 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
                     </div>
                     <BracketMatchCard match={match} hoveredTeam={hoveredTeam} setHoveredTeam={setHoveredTeam} />
                   </div>
-                ))}
+                )) : (
+                  <div className="absolute" style={{ left: `${(CENTER_W - COL_W) / 2}px`, top: "1000px", transform: "translateY(-50%)" }}>
+                    <div className="absolute top-[-32px] left-1/2 -translate-x-1/2 w-full text-center select-none pointer-events-none">
+                      <span className="text-[9px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider bg-[var(--tint-bg)] px-2.5 py-1 rounded-full border border-[var(--border)] whitespace-nowrap">
+                        {t("thirdPlacePlayoff")}
+                      </span>
+                    </div>
+                    <EmptyBracketSlot />
+                  </div>
+                )}
               </div>
 
               {/* ─── RIGHT WING ─── */}
               {/* R4: Semi-final */}
-              <div className="absolute w-[200px] pointer-events-auto" style={{ left: "1200px", height: "1600px", marginTop: "120px" }}>
+              <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${RX[0]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("semifinals").toUpperCase()}</span>
                   <p className="text-[11px] font-bold text-foreground mt-0.5">{rightWing.sf.length} {isId ? "Laga" : "Match"}</p>
@@ -518,7 +533,7 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               </div>
 
               {/* R3: Quarter-final */}
-              <div className="absolute w-[200px] pointer-events-auto" style={{ left: "1432px", height: "1600px", marginTop: "120px" }}>
+              <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${RX[1]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("quarterfinals").toUpperCase()}</span>
                   <p className="text-[11px] font-bold text-foreground mt-0.5">{rightWing.qf.length} {isId ? "Laga" : "Matches"}</p>
@@ -531,7 +546,7 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               </div>
 
               {/* R2: Round of 16 */}
-              <div className="absolute w-[200px] pointer-events-auto" style={{ left: "1664px", height: "1600px", marginTop: "120px" }}>
+              <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${RX[2]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("round16").toUpperCase()}</span>
                   <p className="text-[11px] font-bold text-foreground mt-0.5">{rightWing.r16.length} {isId ? "Laga" : "Matches"}</p>
@@ -544,7 +559,7 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
               </div>
 
               {/* R1: Round of 32 */}
-              <div className="absolute w-[200px] pointer-events-auto" style={{ left: "1896px", height: "1600px", marginTop: "120px" }}>
+              <div className="absolute w-[200px] pointer-events-auto" style={{ left: `${RX[3]}px`, height: "1600px", marginTop: "120px" }}>
                 <div className="absolute top-[-80px] left-0 w-[200px] text-center pb-2 border-b border-[var(--border)]">
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>{t("round32").toUpperCase()}</span>
                   <p className="text-[11px] font-bold text-foreground mt-0.5">{rightWing.r32.length} {isId ? "Laga" : "Matches"}</p>
@@ -560,7 +575,7 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
         </div>
       ) : (
         /* ─── SCHEDULE LIST VIEW (Clean, interactive list) ─── */
-        <div className="space-y-10 max-w-4xl mx-auto">
+        <div className="space-y-10">
           {knockouts.map((round) => (
             <div key={round.name} className="space-y-4">
               <div className="flex items-center gap-2.5 pb-2 border-b border-[var(--border)]">
@@ -576,8 +591,10 @@ export function KnockoutBracket({ knockouts }: { knockouts: KnockoutRound[] }) {
                   {round.matches.length} {isId ? "pertandingan" : "matches"}
                 </span>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {round.matches.map((match) => {
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                {round.matches.length === 0 ? (
+                  <div className="col-span-full text-center py-6" style={{ color: "var(--muted-foreground)", fontSize: "13px", fontWeight: 500 }}>—</div>
+                ) : round.matches.map((match) => {
                   const flag1 = getCountryFlagUrl(match.team1);
                   const flag2 = getCountryFlagUrl(match.team2);
                   const status = getMatchStatus(match);
