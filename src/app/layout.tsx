@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/components/layout/language-provider";
 import { MobileNavigation } from "@/components/layout/navigation";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,6 +72,7 @@ export default function RootLayout({
             <Footer />
 
             <MobileNavigation />
+            <ScrollToTop />
             <Toaster />
             <Analytics />
           </LanguageProvider>
