@@ -375,3 +375,25 @@
   background: rgba(0, 153, 255, 0.25);
   color: var(--foreground);
 }
+
+/* ─── Live Match Card Glow Animation ────────────────────────────────── */
+@keyframes liveGlow {
+  0% {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.15), 0 0 15px rgba(239, 68, 68, 0.05), inset 0 0 0 1px rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.5), 0 0 30px rgba(239, 68, 68, 0.2), inset 0 0 0 1px rgba(239, 68, 68, 0.5);
+    border-color: rgba(239, 68, 68, 0.85);
+  }
+  100% {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.15), 0 0 15px rgba(239, 68, 68, 0.05), inset 0 0 0 1px rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.35);
+  }
+}
+
+.live-card-glow {
+  position: relative;
+  animation: liveGlow 2.5s infinite ease-in-out;
+  border-width: 1px !important;
+}

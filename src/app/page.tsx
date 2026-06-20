@@ -6,7 +6,7 @@ import Link from "next/link";
 import { StatsBanner } from "@/components/home/stats-banner";
 import { TopScorers } from "@/components/standing/top-scorers";
 import { MatchCard } from "@/components/match/match-card";
-import { WorldCupData, Stadium } from "@/lib/types";
+import { WorldCupData, Stadium, Match } from "@/lib/types";
 import { getMatchStatus, organizeGroups } from "@/lib/data";
 import { PageTransition } from "@/components/layout/page-transition";
 import { GroupTable } from "@/components/standing/group-table";

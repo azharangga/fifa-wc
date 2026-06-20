@@ -29,7 +29,9 @@ export function MatchCard({ match }: { match: Match }) {
 
   return (
     <div
-      className="overflow-hidden flex flex-col h-full transition-all duration-300 hover:-translate-y-0.5"
+      className={`overflow-hidden flex flex-col h-full transition-all duration-300 hover:-translate-y-0.5 ${
+        status === "live" ? "live-card-glow" : ""
+      }`}
       style={{
         backgroundColor: "var(--card)",
         border: "1px solid var(--border)",
