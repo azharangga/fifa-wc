@@ -8,6 +8,7 @@ export interface StreamChannel {
   name: string;
   quality: string;
   url: string;
+  disabled?: boolean;
 }
 
 interface ChannelSelectorProps {
@@ -37,14 +38,18 @@ export function ChannelSelector({
         </p>
       </div>
       <div style={{ padding: "16px" }}>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-3">
           {channels.map((channel) => {
             const isActive = selectedChannel.id === channel.id;
+            const isDisabled = channel.disabled;
             return (
               <button
                 key={channel.id}
-                onClick={() => onSelectChannel(channel)}
-                className="flex items-center gap-3.5 p-3.5 text-left transition-all duration-200 cursor-pointer"
+                onClick={() => !isDisabled && onSelectChannel(channel)}
+                disabled={isDisabled}
+                className={`flex items-center gap-3.5 p-3.5 text-left transition-all duration-200 ${
+                  isDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                }`}
                 style={{
                   borderRadius: "15px",
                   border: `1px solid ${isActive ? "var(--foreground)" : "var(--border)"}`,
@@ -62,8 +67,8 @@ export function ChannelSelector({
                   <Tv className="h-4 w-4" style={{ color: isActive ? "var(--background)" : "var(--muted-foreground)" }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                     <p className="truncate" style={{ fontSize: "14px", fontWeight: 700, color: "var(--foreground)", letterSpacing: "-0.14px" }}>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <p className="truncate" style={{ fontSize: "14px", fontWeight: 700, color: "var(--foreground)", letterSpacing: "-0.14px" }}>
                       {channel.name}
                     </p>
                     {isActive && (
@@ -75,14 +80,31 @@ export function ChannelSelector({
                           color: "var(--background)",
                           padding: "1px 5px",
                           borderRadius: "4px",
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {t("activeChannel")}
                       </span>
                     )}
+                    {isDisabled && (
+                      <span
+                        style={{
+                          fontSize: "8px",
+                          fontWeight: 700,
+                          backgroundColor: "rgba(239, 68, 68, 0.1)",
+                          color: "#ef4444",
+                          border: "1px solid rgba(239, 68, 68, 0.2)",
+                          padding: "1px 5px",
+                          borderRadius: "4px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        OFFLINE
+                      </span>
+                    )}
                   </div>
                   <p style={{ fontSize: "12px", color: "var(--muted-foreground)", marginTop: "2px" }}>
-                    {isActive && currentResolution && currentResolution !== "HD" ? `HD ${currentResolution}` : channel.quality}
+                    {isDisabled ? (t("home") === "Beranda" ? "Tidak tersedia" : "Unavailable") : (isActive && currentResolution && currentResolution !== "HD" ? `HD ${currentResolution}` : channel.quality)}
                   </p>
                 </div>
               </button>

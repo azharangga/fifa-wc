@@ -17,11 +17,11 @@ import { MatchDetailSkeleton } from "@/components/layout/loading-state";
 
 const STREAM_CHANNELS: StreamChannel[] = [
   { id: "rtbgo", name: "RTB Go", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTBGO || "https://d1211whpimeups.cloudfront.net/smil:rtbgo/chunklist_b4096000_slENG.m3u8" },
-  { id: "tvri", name: "TVRI Nasional", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_TVRI || "https://ott-balancer.tvri.go.id/live/eds/Nasional/hls/Nasional.m3u8" },
-  { id: "rtb1", name: "RTB 1", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTB1 || "https://d1211whpimeups.cloudfront.net/smil:rtb1/playlist.m3u8" },
   { id: "rtb2", name: "RTB 2", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTB2 || "https://d1211whpimeups.cloudfront.net/smil:rtb2/playlist.m3u8" },
-  { id: "vtv3", name: "VTV3", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_VTV3 || "https://live.fptplay53.net/live/media/vtv3/live247-hls-avc/index.m3u8" },
-  { id: "vtv6", name: "VTV6", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_VTV6 || "https://live-a.fptplay53.net/live/media/vtv6/live247-hls-avc/index.m3u8" },
+  { id: "tvri", name: "TVRI Nasional", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_TVRI || "https://ott-balancer.tvri.go.id/live/eds/Nasional/hls/Nasional.m3u8" },
+  { id: "rtb1", name: "RTB 1", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTB1 || "https://d1211whpimeups.cloudfront.net/smil:rtb1/playlist.m3u8", disabled: true },
+  { id: "vtv3", name: "VTV3", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_VTV3 || "https://live.fptplay53.net/live/media/vtv3/live247-hls-avc/index.m3u8", disabled: true },
+  { id: "vtv6", name: "VTV6", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_VTV6 || "https://live-a.fptplay53.net/live/media/vtv6/live247-hls-avc/index.m3u8", disabled: true },
 ];
 
 import { useWorldCupData } from "@/hooks/use-world-cup-data";
@@ -71,11 +71,6 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
           </Link>
 
           <div className="flex items-center gap-2 flex-wrap overflow-hidden">
-            {match.matchNumber && (
-              <Badge style={{ fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "6px", backgroundColor: "var(--foreground)", color: "var(--background)" }}>
-                {t("matchNumberText", { matchNumber: match.matchNumber.toString() })}
-              </Badge>
-            )}
             {status === "live" && (
               <Badge style={{ fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "6px", backgroundColor: "#ef4444", color: "#ffffff" }}>
                 {t("liveNow")}

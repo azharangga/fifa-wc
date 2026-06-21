@@ -72,6 +72,28 @@ export async function GET() {
       };
     });
 
+    // Helper to calculate match start time in MS for chronological sorting
+    const getStartTimeMs = (date: string, timeStr: string | undefined): number => {
+      if (timeStr && timeStr !== "TBD") {
+        const m = timeStr.match(/(\d{1,2}):(\d{2})(?:\s+UTC([+-]\d+))?/);
+        if (m) {
+          const [, hourStr, minuteStr, utcOffsetStr] = m;
+          const utcOffset = utcOffsetStr ? parseInt(utcOffsetStr, 10) : 0;
+          const d = new Date(`${date}T${hourStr.padStart(2, "0")}:${minuteStr}:00Z`);
+          d.setUTCHours(d.getUTCHours() - utcOffset);
+          return d.getTime();
+        }
+      }
+      return new Date(date + "T12:00:00Z").getTime();
+    };
+
+    // Sort and assign matchNumber for group stage matches (which don't have m.num)
+    const groupMatches = matches.filter((m) => !m.matchNumber);
+    groupMatches.sort((a, b) => getStartTimeMs(a.date, a.time) - getStartTimeMs(b.date, b.time));
+    groupMatches.forEach((m, idx) => {
+      m.matchNumber = idx + 1;
+    });
+
     const outputData = {
       name: raw.name ?? "World Cup 2026",
       matches,

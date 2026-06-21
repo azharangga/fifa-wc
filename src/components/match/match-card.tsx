@@ -244,7 +244,7 @@ export function MatchCard({ match }: { match: Match }) {
 
         <Link
           href={`/match/${match.id}`}
-          className="inline-flex items-center justify-center shrink-0 relative z-20"
+          className="inline-flex items-center justify-center shrink-0 relative z-40"
           style={{
             backgroundColor: "var(--foreground)",
             color: "var(--background)",
@@ -262,7 +262,7 @@ export function MatchCard({ match }: { match: Match }) {
 
       {/* Goal Details Modal */}
       {hasGoals && (
-        <div style={{ borderTop: "1px solid var(--hairline-soft)" }} className="mt-auto py-2.5 text-center bg-card-muted relative z-20">
+        <div style={{ borderTop: "1px solid var(--hairline-soft)" }} className="mt-auto py-2.5 text-center bg-card-muted relative z-40">
           <Dialog>
             <DialogTrigger asChild>
               <button
@@ -367,7 +367,7 @@ export function MatchCard({ match }: { match: Match }) {
         </div>
       )}
       {/* Full-card overlay link */}
-      <Link href={`/match/${match.id}`} className="absolute inset-0 z-10" />
+      <Link href={`/match/${match.id}`} className="absolute inset-0 z-30" />
     </div>
   );
 }

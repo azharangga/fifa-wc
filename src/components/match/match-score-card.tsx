@@ -13,34 +13,34 @@ export function MatchScoreCard({ match }: MatchScoreCardProps) {
 
   return (
     <div
-      className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6"
-      style={{ padding: "20px", borderRadius: "20px", backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
+      className="flex items-center justify-between gap-3 sm:gap-6 p-3 sm:p-5"
+      style={{ borderRadius: "20px", backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
     >
       {/* Team 1 */}
-      <div className="flex items-center gap-3.5 min-w-0 flex-1 w-full sm:w-auto">
+      <div className="flex items-center gap-2 sm:gap-3.5 min-w-0 flex-1">
         <div
-          className="w-12 h-8 overflow-hidden shrink-0 flex items-center justify-center"
-          style={{ borderRadius: "10px", border: "1px solid var(--border)", backgroundColor: "var(--tint-bg)" }}
+          className="w-9 h-6 sm:w-12 sm:h-8 overflow-hidden shrink-0 flex items-center justify-center"
+          style={{ borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--tint-bg)" }}
         >
           {flag1 ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={flag1} alt={match.team1} className="w-full h-full object-cover select-none" />
           ) : (
-            <span style={{ fontSize: "20px" }}>🏆</span>
+            <span style={{ fontSize: "16px" }}>🏆</span>
           )}
         </div>
-        <span style={{ fontWeight: 700, fontSize: "18px", letterSpacing: "-0.18px", color: "var(--foreground)" }} className="truncate">
+        <span style={{ fontWeight: 700, fontSize: "clamp(13px, 3.8vw, 18px)", letterSpacing: "-0.18px", color: "var(--foreground)" }} className="truncate">
           {match.team1}
         </span>
       </div>
 
       {/* Score */}
       <div
-        className="shrink-0"
-        style={{ padding: "10px 20px", borderRadius: "20px", backgroundColor: "var(--secondary)", border: "1px solid var(--border)" }}
+        className="shrink-0 px-3 py-1.5 sm:px-5 sm:py-2.5"
+        style={{ borderRadius: "20px", backgroundColor: "var(--secondary)", border: "1px solid var(--border)" }}
       >
         {match.score?.ft ? (
-          <span style={{ fontSize: "clamp(1.25rem, 3vw, 1.5rem)", fontWeight: 700, color: "var(--foreground)", fontFeatureSettings: '"tnum"' }}>
+          <span style={{ fontSize: "clamp(1rem, 3.5vw, 1.5rem)", fontWeight: 700, color: "var(--foreground)", fontFeatureSettings: '"tnum"' }}>
             {match.score.ft[0]} – {match.score.ft[1]}
           </span>
         ) : (
@@ -49,19 +49,19 @@ export function MatchScoreCard({ match }: MatchScoreCardProps) {
       </div>
 
       {/* Team 2 */}
-      <div className="flex items-center gap-3.5 min-w-0 flex-1 justify-center sm:justify-end w-full sm:w-auto">
-        <span style={{ fontWeight: 700, fontSize: "18px", letterSpacing: "-0.18px", color: "var(--foreground)", textAlign: "right" }} className="truncate">
+      <div className="flex items-center gap-2 sm:gap-3.5 min-w-0 flex-1 justify-end">
+        <span style={{ fontWeight: 700, fontSize: "clamp(13px, 3.8vw, 18px)", letterSpacing: "-0.18px", color: "var(--foreground)", textAlign: "right" }} className="truncate">
           {match.team2}
         </span>
         <div
-          className="w-12 h-8 overflow-hidden shrink-0 flex items-center justify-center"
-          style={{ borderRadius: "10px", border: "1px solid var(--border)", backgroundColor: "var(--tint-bg)" }}
+          className="w-9 h-6 sm:w-12 sm:h-8 overflow-hidden shrink-0 flex items-center justify-center"
+          style={{ borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--tint-bg)" }}
         >
           {flag2 ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={flag2} alt={match.team2} className="w-full h-full object-cover select-none" />
           ) : (
-            <span style={{ fontSize: "20px" }}>🏆</span>
+            <span style={{ fontSize: "16px" }}>🏆</span>
           )}
         </div>
       </div>

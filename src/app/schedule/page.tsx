@@ -104,13 +104,29 @@ export default function SchedulePage() {
     setVisibleDatesCount(15);
   }
 
+  const todayDateStr = useMemo(() => {
+    const now = new Date();
+    if (isId) {
+      // WIB is UTC+7
+      const wibTime = now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + (7 * 60 * 60 * 1000);
+      const wibDate = new Date(wibTime);
+      return wibDate.toISOString().slice(0, 10);
+    } else {
+      const pad = (n: number) => String(n).padStart(2, "0");
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    }
+  }, [isId]);
+
   const activeCalendarDate = useMemo(() => {
     if (selectedCalendarDate && calendarMatchesMap.has(selectedCalendarDate)) {
       return selectedCalendarDate;
     }
+    if (calendarMatchesMap.has(todayDateStr)) {
+      return todayDateStr;
+    }
     const dates = Array.from(calendarMatchesMap.keys()).sort();
     return dates[0] || null;
-  }, [calendarMatchesMap, selectedCalendarDate]);
+  }, [calendarMatchesMap, selectedCalendarDate, todayDateStr]);
 
   const displayedGroupedMatches = useMemo(() => {
     return groupedMatches.slice(0, visibleDatesCount);
@@ -412,7 +428,7 @@ function MatchList({ matches, lang }: { matches: Match[]; lang: string }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--border)]">
-            {matches.map((match) => {
+            {matches.map((match, idx) => {
               const status = getMatchStatus(match);
               const flag1 = getCountryFlagUrl(match.team1);
               const flag2 = getCountryFlagUrl(match.team2);
@@ -424,7 +440,7 @@ function MatchList({ matches, lang }: { matches: Match[]; lang: string }) {
                   className="hover:bg-[var(--hover-bg)] transition-colors text-[13px] text-[var(--foreground)]"
                 >
                   <td className="py-4 px-4 text-center font-bold text-[var(--muted-foreground)]">
-                    {match.matchNumber || "-"}
+                    {idx + 1}
                   </td>
                   <td className="py-4 px-4 whitespace-nowrap">
                     {timeInfo ? (
@@ -539,7 +555,23 @@ function CalendarView({
   selectedDate: string | null;
   onSelectDate: (date: string) => void;
 }) {
-  const [currentMonth, setCurrentMonth] = useState(6); // 6 = June, 7 = July
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    if (selectedDate) {
+      const parts = selectedDate.split("-");
+      if (parts[1]) return parseInt(parts[1], 10);
+    }
+    return 6;
+  });
+
+  useEffect(() => {
+    if (selectedDate) {
+      const parts = selectedDate.split("-");
+      if (parts[1]) {
+        setCurrentMonth(parseInt(parts[1], 10));
+      }
+    }
+  }, [selectedDate]);
+
   const year = 2026;
   const isId = lang === "id";
 
