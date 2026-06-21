@@ -67,7 +67,7 @@ export default function RootLayout({
             <Header />
 
             {/* ─── Main Content ────────────────────────────────────────────────── */}
-            <main className="flex-1 w-full pb-20 md:pb-0">{children}</main>
+            <main className="flex-1 w-full pt-14 pb-20 md:pb-0">{children}</main>
 
             <Footer />
 

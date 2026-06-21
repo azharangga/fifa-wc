@@ -20,11 +20,12 @@ export function Header() {
 
   return (
     <header
-      className="sticky top-0 z-50 border-b"
+      className="fixed top-0 left-0 right-0 z-50 border-b"
       style={{
         backgroundColor: "var(--background)",
         borderBottomColor: "var(--border)",
         height: "56px",
+        backdropFilter: "blur(12px)",
       }}
     >
       <div className="max-w-7xl mx-auto px-3 sm:px-4 h-full flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] gap-2 sm:gap-4">
@@ -52,8 +53,8 @@ export function Header() {
             suppressHydrationWarning
           />
           <span
-            className="text-xs sm:text-sm font-medium tracking-tight leading-none hidden xs:inline"
-            style={{ color: "var(--foreground)", letterSpacing: "-0.14px" }}
+            className="font-body-sm inline"
+            style={{ color: "var(--foreground)" }}
             suppressHydrationWarning
           >
             FIFA World Cup 2026

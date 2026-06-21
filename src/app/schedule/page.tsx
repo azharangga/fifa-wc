@@ -83,7 +83,7 @@ export default function SchedulePage() {
   }
 
   return (
-    <PageTransition className="max-w-7xl mx-auto px-4" style={{ paddingTop: "48px", paddingBottom: "96px" }}>
+    <PageTransition className="max-w-7xl mx-auto px-4" style={{ paddingBottom: "96px" }}>
       <ShimmerStyle />
       <div className="space-y-12">
         {/* Header */}

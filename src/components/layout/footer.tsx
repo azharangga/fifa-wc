@@ -9,7 +9,7 @@ export function Footer() {
 
   return (
     <footer
-      className="border-t py-12 md:py-16"
+      className="border-t pt-12 pb-24 md:py-16"
       style={{
         backgroundColor: "var(--background)",
         borderTopColor: "var(--hairline-soft)",
