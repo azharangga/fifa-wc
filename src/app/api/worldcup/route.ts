@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { v5 as uuidv5 } from "uuid";
 
+export const dynamic = "force-dynamic";
+
 // ─── OpenFootball public dataset (no API key required) ───────────────────────
 // https://github.com/openfootball/worldcup.json
 const OPENFOOTBALL_URL =
@@ -9,21 +11,10 @@ const OPENFOOTBALL_URL =
 
 const UUID_NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
 
-// Cache — revalidate every 5 minutes for near-real-time updates
-let cachedData: any = null;
-let cachedAt = 0; // initialized to 0 so first request always fetches fresh data
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
 export async function GET() {
-  const now = Date.now();
-
-  if (cachedData && now - cachedAt < CACHE_TTL) {
-    return NextResponse.json(cachedData);
-  }
-
   try {
     const res = await fetch(OPENFOOTBALL_URL, {
-      next: { revalidate: 300 },
+      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -85,18 +76,9 @@ export async function GET() {
       name: raw.name ?? "World Cup 2026",
       matches,
     };
-
-    cachedData = outputData;
-    cachedAt = now;
-
     return NextResponse.json(outputData);
   } catch (error) {
     console.error("[WorldCup API] Error:", error);
-
-    // Serve stale cache if available
-    if (cachedData) {
-      return NextResponse.json(cachedData);
-    }
 
     return NextResponse.json(
       { error: "Failed to fetch World Cup data from OpenFootball" },

@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Search, X, Calendar, MapPin, Trophy, Sparkles, History, ArrowRight, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getCountryFlagUrl, formatDate, getMatchStatus } from "@/lib/data";
+import { getCountryFlagUrl, formatDate, getMatchStatus, convertTimeToUserTimezone } from "@/lib/data";
 import { Match, Team, Stadium } from "@/lib/types";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { useTranslation } from "./language-provider";
@@ -166,8 +166,16 @@ export function GlobalSearch() {
         const round = match.round ? match.round.toLowerCase() : "";
         const dateFormatted = formatDate(match.date, lang).toLowerCase();
 
+        const status = getMatchStatus(match);
+        const isQueryLive = q === "live" || q === "langsung" || q === "live now" || q === "siaran langsung";
+
         let score = 0;
         let matchedReason = "";
+
+        if (isQueryLive && status === "live") {
+          score += 95;
+          matchedReason = lang === "id" ? "Sedang Langsung" : "Live Now";
+        }
 
         // Vs query splitting
         if (isVsQuery) {
@@ -556,6 +564,7 @@ export function GlobalSearch() {
                       const status = getMatchStatus(match);
                       const flag1 = getCountryFlagUrl(match.team1);
                       const flag2 = getCountryFlagUrl(match.team2);
+                      const converted = match.time ? convertTimeToUserTimezone(match.date, match.time, lang) : { date: formatDate(match.date, lang), time: match.time || "TBD", dateShifted: false };
 
                       return (
                         <Link
@@ -573,7 +582,14 @@ export function GlobalSearch() {
                           }`}
                         >
                           <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground)] font-bold mb-2 uppercase tracking-wide">
-                            <span>{match.round} • {match.group || (t("home") === "Beranda" ? "Fase Gugur" : "Knockout")}</span>
+                            <span>
+                              {match.round} • {match.group || (t("home") === "Beranda" ? "Fase Gugur" : "Knockout")} • {converted.date}
+                              {converted.dateShifted && (
+                                <span style={{ color: "#f59e0b", marginLeft: "4px" }}>
+                                  {lang === "id" ? "(+1 hari)" : "(+1 day)"}
+                                </span>
+                              )}
+                            </span>
                             <span
                               className="px-1.5 py-0.5 rounded-full text-[9px]"
                               style={{
@@ -600,14 +616,14 @@ export function GlobalSearch() {
                                 <span className="text-xs font-bold text-[var(--foreground)] truncate">{match.team2}</span>
                               </div>
                             </div>
-                            <div className="text-right ml-4 shrink-0 font-mono text-xs font-bold text-[var(--foreground)]">
+                            <div className="text-right ml-4 shrink-0 font-mono text-[11px] font-bold text-[var(--foreground)] white-space-nowrap">
                               {match.score?.ft ? (
                                 <div className="flex flex-col gap-1 items-end">
                                   <span>{match.score.ft[0]}</span>
                                   <span>{match.score.ft[1]}</span>
                                 </div>
                               ) : (
-                                <span>{match.time ? match.time.split(" ")[0] : "TBD"}</span>
+                                <span>{match.time ? converted.time : "TBD"}</span>
                               )}
                             </div>
                           </div>

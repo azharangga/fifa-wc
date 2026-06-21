@@ -14,7 +14,7 @@ export default function SchedulePage() {
   const [data, setData] = useState<WorldCupData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "completed" | "upcoming">("all");
+  const [filter, setFilter] = useState<"all" | "live" | "completed" | "upcoming">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleDatesCount, setVisibleDatesCount] = useState(15);
   const { t, lang } = useTranslation();
@@ -121,6 +121,7 @@ export default function SchedulePage() {
           >
             {([
               { key: "all", label: t("tabAll") },
+              { key: "live", label: isId ? "Langsung" : "Live" },
               { key: "completed", label: isId ? "Selesai" : "Completed" },
               { key: "upcoming", label: isId ? "Mendatang" : "Upcoming" },
             ] as const).map((f) => {

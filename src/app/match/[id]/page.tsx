@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useState, use } from "react";
 import { Loader2, ArrowLeft, Calendar, Clock, MapPin } from "lucide-react";
 import Link from "next/link";
 import { HLSPlayer } from "@/components/match/hls-player";
@@ -22,29 +22,13 @@ const STREAM_CHANNELS: StreamChannel[] = [
   { id: "vtv6", name: "VTV6", quality: "HD", url: process.env.NEXT_PUBLIC_STREAM_URL_VTV6 || "https://live-a.fptplay53.net/live/media/vtv6/live247-hls-avc/index.m3u8" },
 ];
 
+import { useWorldCupData } from "@/hooks/use-world-cup-data";
+
 export default function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [data, setData] = useState<WorldCupData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error } = useWorldCupData();
   const [selectedChannel, setSelectedChannel] = useState<StreamChannel>(STREAM_CHANNELS[0]);
   const { t, lang } = useTranslation();
-
-  useEffect(() => {
-    fetch("/api/worldcup")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch matches");
-        return res.json();
-      })
-      .then((d: WorldCupData) => {
-        setData(d);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
 
   const match = data?.matches.find((m) => m.id === id);
 
@@ -86,7 +70,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               </Badge>
             )}
             {status === "live" && (
-              <Badge style={{ fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "6px", backgroundColor: "#ef4444", color: "#ffffff", animation: "pulse 2s infinite" }}>
+              <Badge style={{ fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "6px", backgroundColor: "#ef4444", color: "#ffffff" }}>
                 {t("liveNow")}
               </Badge>
             )}

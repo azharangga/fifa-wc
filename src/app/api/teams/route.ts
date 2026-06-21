@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 const TEAMS_URL =
   process.env.OPENFOOTBALL_TEAMS_URL ||
   "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.teams.json";
@@ -7,21 +9,11 @@ const SQUADS_URL =
   process.env.OPENFOOTBALL_SQUADS_URL ||
   "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.squads.json";
 
-let cachedData: any[] | null = null;
-let cachedAt = 0;
-const CACHE_TTL = 60 * 60 * 1000; // 1 hour
-
 export async function GET() {
-  const now = Date.now();
-
-  if (cachedData && now - cachedAt < CACHE_TTL) {
-    return NextResponse.json(cachedData);
-  }
-
   try {
     const [teamsRes, squadsRes] = await Promise.all([
-      fetch(TEAMS_URL, { next: { revalidate: 3600 } }),
-      fetch(SQUADS_URL, { next: { revalidate: 3600 } }),
+      fetch(TEAMS_URL, { cache: "no-store" }),
+      fetch(SQUADS_URL, { cache: "no-store" }),
     ]);
 
     if (!teamsRes.ok || !squadsRes.ok) {
@@ -60,16 +52,9 @@ export async function GET() {
         a.group.localeCompare(b.group) || a.name.localeCompare(b.name)
     );
 
-    cachedData = teams;
-    cachedAt = now;
-
     return NextResponse.json(teams);
   } catch (error) {
     console.error("[Teams API] Error:", error);
-
-    if (cachedData) {
-      return NextResponse.json(cachedData);
-    }
 
     return NextResponse.json(
       { error: "Failed to fetch teams data" },

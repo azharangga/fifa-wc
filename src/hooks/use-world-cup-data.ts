@@ -11,26 +11,32 @@ export function useWorldCupData() {
   useEffect(() => {
     let active = true;
 
-    fetch("/api/worldcup")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch matches");
-        return res.json();
-      })
-      .then((d: WorldCupData) => {
-        if (active) {
-          setData(d);
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        if (active) {
-          setError(err.message);
-          setLoading(false);
-        }
-      });
+    const fetchData = () => {
+      fetch("/api/worldcup", { cache: "no-store" })
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch matches");
+          return res.json();
+        })
+        .then((d: WorldCupData) => {
+          if (active) {
+            setData(d);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          if (active) {
+            setError(err.message);
+            setLoading(false);
+          }
+        });
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, 30000); // Poll every 30 seconds for real-time updates
 
     return () => {
       active = false;
+      clearInterval(interval);
     };
   }, []);
 

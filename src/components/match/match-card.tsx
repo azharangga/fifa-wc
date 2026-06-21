@@ -29,7 +29,7 @@ export function MatchCard({ match }: { match: Match }) {
 
   return (
     <div
-      className={`overflow-hidden flex flex-col h-full transition-all duration-300 hover:-translate-y-0.5 ${
+      className={`relative overflow-hidden flex flex-col h-full transition-all duration-300 hover:-translate-y-0.5 ${
         status === "live" ? "live-card-glow" : ""
       }`}
       style={{
@@ -201,9 +201,6 @@ export function MatchCard({ match }: { match: Match }) {
             </span>
           </div>
         </div>
-
-        {/* Full-card link */}
-        <Link href={`/match/${match.id}`} className="absolute inset-0 z-10" />
       </div>
 
       {/* Footer */}
@@ -247,7 +244,7 @@ export function MatchCard({ match }: { match: Match }) {
 
         <Link
           href={`/match/${match.id}`}
-          className="inline-flex items-center justify-center shrink-0"
+          className="inline-flex items-center justify-center shrink-0 relative z-20"
           style={{
             backgroundColor: "var(--foreground)",
             color: "var(--background)",
@@ -265,7 +262,7 @@ export function MatchCard({ match }: { match: Match }) {
 
       {/* Goal Details Modal */}
       {hasGoals && (
-        <div style={{ borderTop: "1px solid var(--hairline-soft)" }} className="mt-auto py-2.5 text-center bg-card-muted">
+        <div style={{ borderTop: "1px solid var(--hairline-soft)" }} className="mt-auto py-2.5 text-center bg-card-muted relative z-20">
           <Dialog>
             <DialogTrigger asChild>
               <button
@@ -369,6 +366,8 @@ export function MatchCard({ match }: { match: Match }) {
           </Dialog>
         </div>
       )}
+      {/* Full-card overlay link */}
+      <Link href={`/match/${match.id}`} className="absolute inset-0 z-10" />
     </div>
   );
 }

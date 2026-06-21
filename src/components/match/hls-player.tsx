@@ -34,6 +34,9 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
   const [volume, setVolume] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBuffering, setIsBuffering] = useState(false);
+  const [isLive, setIsLive] = useState(true);
+  const [isAtLiveEdge, setIsAtLiveEdge] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showControls, setShowControls] = useState(true);
   const [currentChannelId, setCurrentChannelId] = useState(channelId);
@@ -74,9 +77,23 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
     }
 
     if (Hls.isSupported()) {
+      video.muted = false;
       const hls = new Hls({
         enableWorker: true,
-        lowLatencyMode: true,
+        lowLatencyMode: false,          // Disable LL mode to avoid micro-stalls
+        maxBufferLength: 45,            // Pre-load up to 45 seconds of video stream
+        maxMaxBufferLength: 90,         // Cache up to 90 seconds maximum
+        maxBufferSize: 120 * 1024 * 1024, // 120MB buffer limit
+        liveSyncDuration: 15,           // Target 15 seconds behind live edge to establish a safe margin
+        liveMaxLatencyDuration: 25,     // Sync back if latency exceeds 25 seconds
+        enableSoftwareAES: true,
+        // Aggressive retries for network drops
+        manifestLoadingTimeOut: 20000,
+        manifestLoadingMaxRetry: 6,
+        levelLoadingTimeOut: 20000,
+        levelLoadingMaxRetry: 6,
+        fragLoadingTimeOut: 30000,
+        fragLoadingMaxRetry: 8,
       });
       hlsRef.current = hls;
 
@@ -85,6 +102,11 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setIsLoading(false);
+        video.play().catch(() => {
+          video.muted = true;
+          setIsMuted(true);
+          video.play().catch(() => {});
+        });
       });
 
       hls.on(Hls.Events.ERROR, (_event, data) => {
@@ -107,7 +129,13 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
       });
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = url;
+      video.muted = false;
       setIsLoading(false);
+      video.play().catch(() => {
+        video.muted = true;
+        setIsMuted(true);
+        video.play().catch(() => {});
+      });
     } else {
       hlsRef.current = null;
       window.requestAnimationFrame(() => {
@@ -131,19 +159,80 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
     return () => document.removeEventListener("fullscreenchange", handleFsChange);
   }, []);
 
-  // Time update listener
+  const checkLiveEdge = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    setIsLive(true);
+
+    if (video.seekable && video.seekable.length > 0) {
+      const end = video.seekable.end(video.seekable.length - 1);
+      const diff = end - video.currentTime;
+      const atLive = diff < 18;
+      setIsAtLiveEdge(atLive);
+
+      // Auto-sync back to live if lag drifts beyond 35 seconds
+      if (diff > 35) {
+        video.currentTime = Math.max(0, end - 15);
+      }
+    } else {
+      setIsAtLiveEdge(true);
+    }
+  }, []);
+
+  const syncToLive = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.seekable && video.seekable.length > 0) {
+      const end = video.seekable.end(video.seekable.length - 1);
+      video.currentTime = Math.max(0, end - 15);
+      if (video.paused) {
+        video.play().catch(() => {});
+      }
+      setIsAtLiveEdge(true);
+    }
+  }, []);
+
+  // Video events and synchronization listener
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    const onTimeUpdate = () => setCurrentTime(video.currentTime);
-    const onDurationChange = () => setDuration(video.duration);
+
+    const onTimeUpdate = () => {
+      setCurrentTime(video.currentTime);
+      checkLiveEdge();
+    };
+    const onDurationChange = () => {
+      setDuration(video.duration);
+      checkLiveEdge();
+    };
+    const onWaiting = () => setIsBuffering(true);
+    const onPlaying = () => {
+      setIsBuffering(false);
+      setIsPlaying(true);
+    };
+    const onSeeking = () => setIsBuffering(true);
+    const onSeeked = () => {
+      setIsBuffering(false);
+      checkLiveEdge();
+    };
+
     video.addEventListener("timeupdate", onTimeUpdate);
     video.addEventListener("durationchange", onDurationChange);
+    video.addEventListener("waiting", onWaiting);
+    video.addEventListener("playing", onPlaying);
+    video.addEventListener("seeking", onSeeking);
+    video.addEventListener("seeked", onSeeked);
+
     return () => {
       video.removeEventListener("timeupdate", onTimeUpdate);
       video.removeEventListener("durationchange", onDurationChange);
+      video.removeEventListener("waiting", onWaiting);
+      video.removeEventListener("playing", onPlaying);
+      video.removeEventListener("seeking", onSeeking);
+      video.removeEventListener("seeked", onSeeked);
     };
-  }, []);
+  }, [checkLiveEdge]);
 
   const togglePlay = useCallback(async () => {
     const video = videoRef.current;
@@ -315,6 +404,8 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
         ref={videoRef}
         className="w-full h-full bg-black object-contain cursor-pointer"
         playsInline
+        autoPlay
+        muted
         onClick={togglePlay}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
@@ -370,6 +461,13 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
         </div>
       )}
 
+      {/* ── Buffering/Lag State ── */}
+      {isBuffering && !isLoading && !error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/15 z-10 pointer-events-none">
+          <Loader2 className="h-10 w-10 text-white/90 animate-spin stroke-[1.5]" />
+        </div>
+      )}
+
       {/* â”€â”€ Center Play Overlay â”€â”€ */}
       {!isPlaying && !isLoading && !error && (
         <div
@@ -412,15 +510,26 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
       >
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-red-500 px-2 py-0.5 rounded-md select-none">
-              <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-              <span className="text-[9px] text-white font-extrabold tracking-wider uppercase">{t("liveIndicator")}</span>
-            </div>
+            {isAtLiveEdge ? (
+              <div className="flex items-center gap-1.5 bg-red-500 px-2 py-0.5 rounded-md select-none cursor-default">
+                <span className="relative flex h-2 w-2 shrink-0 aspect-square">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75 shrink-0"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-white shrink-0"></span>
+                </span>
+                <span className="text-[9px] text-white font-extrabold tracking-wider uppercase">{t("liveIndicator")}</span>
+              </div>
+            ) : (
+              <button
+                onClick={syncToLive}
+                className="flex items-center gap-1.5 bg-black/55 hover:bg-black/80 px-2 py-0.5 rounded-md select-none text-[9px] text-white/90 border border-white/10 font-extrabold tracking-wider uppercase cursor-pointer transition-all active:scale-95 animate-pulse"
+                title="Click to sync to live edge"
+              >
+                <span className="h-2 w-2 rounded-full bg-gray-400 shrink-0 aspect-square" />
+                <span>{t("liveIndicator")}</span>
+              </button>
+            )}
             <Badge variant="outline" className="text-[10px] font-bold text-white/70 border-white/15 rounded-md h-6 px-1.5">
               HD
-            </Badge>
-            <Badge variant="outline" className="text-[10px] font-bold text-white/70 border-white/15 rounded-md h-6 px-1.5">
-              1080p
             </Badge>
           </div>
           {venue && (
@@ -440,26 +549,10 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
         style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 pb-3 pt-8">
-          {/* Progress bar (for VOD content) */}
-          {duration > 0 && isFinite(duration) && (
-            <div className="mb-3 group/progress">
-              <div className="relative h-1 w-full rounded-full overflow-hidden bg-white/15 hover:h-1.5 transition-all cursor-pointer">
-                <div
-                  className="absolute top-0 left-0 bottom-0 bg-white rounded-full transition-all"
-                  style={{ width: `${(currentTime / duration) * 100}%` }}
-                />
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-lg opacity-0 group-hover/progress:opacity-100 transition-opacity"
-                  style={{ left: `calc(${(currentTime / duration) * 100}% - 6px)` }}
-                />
-              </div>
-            </div>
-          )}
-
+        <div className="px-4 pb-3 pt-4">
           <div className="flex items-center justify-between gap-2">
             {/* Left controls */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               {/* Play/Pause */}
               <button
                 onClick={togglePlay}
@@ -472,32 +565,6 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
                   <Play className="h-4 w-4 fill-white" />
                 )}
               </button>
-
-              {/* Skip Back */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => skip(-10)}
-                    className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
-                  >
-                    <SkipBack className="h-3.5 w-3.5" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>{t("back10s")}</TooltipContent>
-              </Tooltip>
-
-              {/* Skip Forward */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => skip(10)}
-                    className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
-                  >
-                    <SkipForward className="h-3.5 w-3.5" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>{t("forward10s")}</TooltipContent>
-              </Tooltip>
 
               {/* Volume */}
               <div className="flex items-center gap-1.5 group/volume">
@@ -521,64 +588,57 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
                   />
                 </div>
               </div>
-
-              {/* Time display */}
-              {duration > 0 && isFinite(duration) && (
-                <span className="text-[11px] text-white/50 font-medium tabular-nums ml-2 hidden sm:block">
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </span>
-              )}
             </div>
 
             {/* Right controls */}
             <div className="flex items-center gap-1">
               {/* Speed selector */}
-              <div className="relative">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-                      className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1"
-                    >
-                      <Gauge className="h-3.5 w-3.5" />
-                      {playbackSpeed !== 1 && (
-                        <span className="text-[10px] font-bold">{playbackSpeed}x</span>
-                      )}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>{t("playbackSpeed")}</TooltipContent>
-                </Tooltip>
-
-                {/* Speed dropdown */}
-                {showSpeedMenu && (
-                  <div
-                    className="absolute bottom-full right-0 mb-2 rounded-xl overflow-hidden"
-                    style={{
-                      background: "rgba(20,20,20,0.95)",
-                      backdropFilter: "blur(20px)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
-                    }}
-                  >
-                    {PLAYBACK_SPEEDS.map((speed) => (
+              {!isLive && (
+                <div className="relative">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
                       <button
-                        key={speed}
-                        onClick={() => changeSpeed(speed)}
-                        className="w-full px-4 py-2 text-left text-xs font-medium transition-colors hover:bg-white/10"
-                        style={{
-                          color: speed === playbackSpeed ? "#ffffff" : "rgba(255,255,255,0.5)",
-                          background: speed === playbackSpeed ? "rgba(255,255,255,0.08)" : "transparent",
-                          minWidth: "80px",
-                        }}
+                        onClick={() => setShowSpeedMenu(!showSpeedMenu)}
+                        className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1"
                       >
-                        {speed}x
+                        <Gauge className="h-3.5 w-3.5" />
+                        {playbackSpeed !== 1 && (
+                          <span className="text-[10px] font-bold">{playbackSpeed}x</span>
+                        )}
                       </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    </TooltipTrigger>
+                    <TooltipContent>{t("playbackSpeed")}</TooltipContent>
+                  </Tooltip>
 
-
+                  {/* Speed dropdown */}
+                  {showSpeedMenu && (
+                    <div
+                      className="absolute bottom-full right-0 mb-2 rounded-xl overflow-hidden"
+                      style={{
+                        background: "rgba(20,20,20,0.95)",
+                        backdropFilter: "blur(20px)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
+                      }}
+                    >
+                      {PLAYBACK_SPEEDS.map((speed) => (
+                        <button
+                          key={speed}
+                          onClick={() => changeSpeed(speed)}
+                          className="w-full px-4 py-2 text-left text-xs font-medium transition-colors hover:bg-white/10"
+                          style={{
+                            color: speed === playbackSpeed ? "#ffffff" : "rgba(255,255,255,0.5)",
+                            background: speed === playbackSpeed ? "rgba(255,255,255,0.08)" : "transparent",
+                            minWidth: "80px",
+                          }}
+                        >
+                          {speed}x
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* PiP */}
               <Tooltip>
