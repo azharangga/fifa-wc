@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Search, X, Calendar, MapPin, Trophy, Sparkles, History, ArrowRight, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -34,6 +35,11 @@ export function GlobalSearch() {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(-1);
   const [recentSearches, setRecentSearches] = useState<RecentSearchItem[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   // Data States
   const [data, setData] = useState<{ name: string; matches: Match[] } | null>(null);
@@ -433,11 +439,11 @@ export function GlobalSearch() {
       </Tooltip>
 
       {/* Modal Overlay */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-4 pt-[5vh] sm:pt-[10vh] animate-in fade-in duration-200">
+      {isOpen && mounted && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-start justify-center p-3 sm:p-4 pt-[5vh] sm:pt-[10vh] backdrop-blur-md animate-in fade-in duration-200">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            className="absolute inset-0 bg-black/60"
             onClick={() => setIsOpen(false)}
           />
 
@@ -730,7 +736,8 @@ export function GlobalSearch() {
               <span>{t("escToClose")}</span>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
