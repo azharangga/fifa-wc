@@ -27,7 +27,7 @@ export function Header() {
         height: "56px",
       }}
     >
-      <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 h-full flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] gap-2 sm:gap-4">
         {/* Brand mark — monochrome */}
         <Link
           href="/"
@@ -52,7 +52,7 @@ export function Header() {
             suppressHydrationWarning
           />
           <span
-            className="text-xs sm:text-sm font-medium tracking-tight leading-none"
+            className="text-xs sm:text-sm font-medium tracking-tight leading-none hidden xs:inline"
             style={{ color: "var(--foreground)", letterSpacing: "-0.14px" }}
             suppressHydrationWarning
           >
@@ -64,14 +64,14 @@ export function Header() {
         <Navigation />
 
         {/* Search & Theme toggle — right aligned */}
-        <div className="justify-self-end flex items-center gap-2">
+        <div className="justify-self-end flex items-center gap-1 sm:gap-2">
           <GlobalSearch />
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="h-9 px-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--hover-bg)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5 transition-all cursor-pointer font-bold text-xs uppercase"
+                className="h-9 px-2 sm:px-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--hover-bg)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer font-bold text-xs uppercase"
               >
                 <Languages className="h-4 w-4" />
                 <span suppressHydrationWarning>{lang.toUpperCase()}</span>

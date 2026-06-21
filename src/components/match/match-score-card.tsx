@@ -13,11 +13,11 @@ export function MatchScoreCard({ match }: MatchScoreCardProps) {
 
   return (
     <div
-      className="flex items-center justify-between gap-6"
-      style={{ padding: "24px", borderRadius: "20px", backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
+      className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6"
+      style={{ padding: "20px", borderRadius: "20px", backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
     >
       {/* Team 1 */}
-      <div className="flex items-center gap-3.5 min-w-0 flex-1">
+      <div className="flex items-center gap-3.5 min-w-0 flex-1 w-full sm:w-auto">
         <div
           className="w-12 h-8 overflow-hidden shrink-0 flex items-center justify-center"
           style={{ borderRadius: "10px", border: "1px solid var(--border)", backgroundColor: "var(--tint-bg)" }}
@@ -49,7 +49,7 @@ export function MatchScoreCard({ match }: MatchScoreCardProps) {
       </div>
 
       {/* Team 2 */}
-      <div className="flex items-center gap-3.5 min-w-0 flex-1 justify-end">
+      <div className="flex items-center gap-3.5 min-w-0 flex-1 justify-center sm:justify-end w-full sm:w-auto">
         <span style={{ fontWeight: 700, fontSize: "18px", letterSpacing: "-0.18px", color: "var(--foreground)", textAlign: "right" }} className="truncate">
           {match.team2}
         </span>

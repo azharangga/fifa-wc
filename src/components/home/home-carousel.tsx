@@ -331,7 +331,7 @@ export function HomeCarousel({ data }: { data: WorldCupData }) {
 
       {/* Dot indicators */}
       {slides.length > 1 && (
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+        <div className="absolute bottom-20 md:bottom-16 left-1/2 -translate-x-1/2 z-20 flex gap-2">
           {slides.map((_, idx) => (
             <button
               key={idx}

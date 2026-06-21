@@ -10,28 +10,12 @@ import { LoadingState } from "@/components/layout/loading-state";
 import { ErrorState } from "@/components/layout/error-state";
 import { useTranslation } from "@/components/layout/language-provider";
 
+import { useWorldCupData } from "@/hooks/use-world-cup-data";
+
 export default function KnockoutPage() {
-  const [data, setData] = useState<WorldCupData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error } = useWorldCupData();
   const { t } = useTranslation();
   const isId = t("home") === "Beranda";
-
-  useEffect(() => {
-    fetch("/api/worldcup")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch matches");
-        return res.json();
-      })
-      .then((d: WorldCupData) => {
-        setData(d);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
 
   const knockouts = useMemo(() => (data ? organizeKnockout(data.matches) : []), [data]);
 

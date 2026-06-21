@@ -9,19 +9,15 @@ export function Footer() {
 
   return (
     <footer
+      className="border-t py-12 md:py-16"
       style={{
         backgroundColor: "var(--background)",
         borderTopColor: "var(--hairline-soft)",
-        paddingTop: "64px",
-        paddingBottom: "32px",
-        paddingLeft: "32px",
-        paddingRight: "32px",
       }}
-      className="border-t"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* Footer link grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 pb-8 md:pb-10">
           {/* Brand column */}
           <div className="col-span-2 md:col-span-1 space-y-3">
             <div className="flex items-center gap-2">
@@ -193,7 +189,7 @@ export function Footer() {
           >
             <span>{t("footerCopyright")}</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             {/* Data & stream credit */}
             <div
               className="flex items-center gap-1.5 px-3 py-1.5"

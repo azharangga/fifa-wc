@@ -70,7 +70,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
             <span>{t("backToHome")}</span>
           </Link>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap overflow-hidden">
             {match.matchNumber && (
               <Badge style={{ fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "6px", backgroundColor: "var(--foreground)", color: "var(--background)" }}>
                 {t("matchNumberText", { matchNumber: match.matchNumber.toString() })}
@@ -125,7 +125,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {/* Player */}
-        <div style={{ borderRadius: "20px", overflow: "hidden", boxShadow: "0 25px 50px rgba(0,0,0,0.5)" }}>
+        <div className="rounded-[20px] overflow-hidden shadow-2xl">
           <HLSPlayer
             url={selectedChannel.url}
             channelId={selectedChannel.id}

@@ -66,12 +66,13 @@ export function MobileNavigation() {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-4 py-2 pb-safe"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 py-2"
       style={{
         backgroundColor: "var(--background)",
         borderTop: "1px solid var(--border)",
         backdropFilter: "blur(16px)",
         boxShadow: "0 -4px 24px rgba(0,0,0,0.15)",
+        paddingBottom: "max(8px, env(safe-area-inset-bottom))",
       }}
     >
       {links.map((link) => {

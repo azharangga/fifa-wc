@@ -119,10 +119,10 @@ export default function TeamsPage() {
           </div>
 
           {/* Confederation filter */}
-          <div className="flex gap-1.5 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap sm:flex-nowrap overflow-x-auto sm:overflow-visible pb-1 sm:pb-0">
             <button
               onClick={() => setConfedFilter("")}
-              className="px-3 py-1.5 text-xs font-medium transition-all"
+              className="px-3 py-1.5 text-xs font-medium transition-all shrink-0"
               style={{
                 borderRadius: "100px",
                 backgroundColor: !confedFilter ? "var(--primary)" : "var(--card)",
@@ -137,7 +137,7 @@ export default function TeamsPage() {
               <button
                 key={c}
                 onClick={() => setConfedFilter(c === confedFilter ? "" : c)}
-                className="px-3 py-1.5 text-xs font-medium transition-all"
+                className="px-3 py-1.5 text-xs font-medium transition-all shrink-0"
                 style={{
                   borderRadius: "100px",
                   backgroundColor: confedFilter === c ? "var(--primary)" : "var(--card)",

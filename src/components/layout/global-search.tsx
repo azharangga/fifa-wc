@@ -434,7 +434,7 @@ export function GlobalSearch() {
 
       {/* Modal Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-4 pt-[5vh] sm:pt-[10vh] animate-in fade-in duration-200">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-md"
@@ -443,7 +443,7 @@ export function GlobalSearch() {
 
           {/* Dialog Container */}
           <div
-            className="relative w-full max-w-2xl flex flex-col max-h-[75vh] overflow-hidden transition-all duration-300"
+            className="relative w-full max-w-2xl flex flex-col max-h-[80vh] sm:max-h-[75vh] overflow-hidden transition-all duration-300"
             style={{
               backgroundColor: "var(--card)",
               borderRadius: "20px",
@@ -722,7 +722,7 @@ export function GlobalSearch() {
             </div>
 
             {/* Shortcut hints footer */}
-            <div className="px-4 py-2.5 bg-[var(--tint-bg)] border-t border-[var(--border)] flex items-center justify-between text-[10px] text-[var(--muted-foreground)] font-semibold">
+            <div className="px-4 py-2.5 bg-[var(--tint-bg)] border-t border-[var(--border)] flex items-center justify-between text-[10px] text-[var(--muted-foreground)] font-semibold overflow-x-auto">
               <div className="flex gap-4">
                 <span><kbd className="bg-[var(--card)] px-1 py-0.5 rounded border border-[var(--border)]">↑↓</kbd> {t("navigate")}</span>
                 <span><kbd className="bg-[var(--card)] px-1.5 py-0.5 rounded border border-[var(--border)]">↵</kbd> {t("select")}</span>

@@ -115,7 +115,7 @@ export function StatsBanner({ data }: { data: WorldCupData }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 w-full">
       {stats.map((stat) => {
         const Icon = stat.icon;
         return (
@@ -123,11 +123,11 @@ export function StatsBanner({ data }: { data: WorldCupData }) {
             key={stat.label}
             className="flex flex-col justify-between transition-all duration-300 group hover:-translate-y-0.5"
             style={{
-              padding: "20px",
+              padding: "16px",
               backgroundColor: "var(--card)",
-              borderRadius: "20px",
+              borderRadius: "16px",
               border: "1px solid var(--border)",
-              minHeight: "130px"
+              minHeight: "110px"
             }}
           >
             <div>

@@ -128,8 +128,8 @@ export default function Home() {
       )}
 
       {/* ─── Dashboard Rails ─ 96px section spacing per DESIGN.md ─────── */}
-      <div className="max-w-7xl mx-auto px-4" style={{ paddingTop: "96px", paddingBottom: "96px" }}>
-        <div className="space-y-24">
+      <div className="max-w-7xl mx-auto px-4" style={{ paddingTop: "clamp(48px, 8vw, 96px)", paddingBottom: "clamp(48px, 8vw, 96px)" }}>
+        <div className="space-y-12 md:space-y-16 lg:space-y-24">
           {/* Tournament Insights Section */}
           <div className="space-y-6">
             <div className="flex items-center gap-3">
@@ -186,7 +186,7 @@ export default function Home() {
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
-              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {loading ? (
                   Array.from({ length: 3 }).map((_, i) => (
                     <MatchCardSkeleton key={i} />
@@ -363,9 +363,9 @@ export default function Home() {
                         >
                           <th className="text-left py-3 px-4 font-semibold">#</th>
                           <th className="text-left py-3 px-4 font-semibold">{t("stadiums") === "Stadion" ? "Stadion" : "Stadium"}</th>
-                          <th className="text-left py-3 px-4 font-semibold">{t("hostCity")}</th>
+                          <th className="text-left py-3 px-4 font-semibold hidden sm:table-cell">{t("hostCity")}</th>
                           <th className="text-right py-3 px-4 font-semibold">{t("capacity")}</th>
-                          <th className="text-left py-3 px-4 font-semibold">{t("timezone")}</th>
+                          <th className="text-left py-3 px-4 font-semibold hidden md:table-cell">{t("timezone")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -395,7 +395,7 @@ export default function Home() {
                               <td className="py-2.5 px-4 font-medium" style={{ color: "var(--foreground)", letterSpacing: "-0.14px" }}>
                                 {s.name}
                               </td>
-                              <td className="py-2.5 px-4" style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>
+                              <td className="py-2.5 px-4 hidden sm:table-cell" style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>
                                 <span className="inline-flex items-center gap-1.5">
                                   <span>{countryFlag}</span>
                                   <span>{s.city}</span>
@@ -404,7 +404,7 @@ export default function Home() {
                               <td className="py-2.5 px-4 text-right font-bold tabular-nums" style={{ color: "var(--foreground)", fontSize: "13px" }}>
                                 {s.capacity.toLocaleString()}
                               </td>
-                              <td className="py-2.5 px-4" style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>
+                              <td className="py-2.5 px-4 hidden md:table-cell" style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>
                                 <span className="inline-flex items-center gap-1">
                                   <Clock className="h-3.5 w-3.5" />
                                   {s.timezone}
@@ -418,7 +418,7 @@ export default function Home() {
                   </div>
                   {/* Summary footer */}
                   <div
-                    className="flex items-center justify-center gap-6 py-3 text-xs"
+                    className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 py-3 text-xs"
                     style={{ borderTop: "1px solid var(--border)", color: "var(--muted-foreground)" }}
                   >
                     <span className="inline-flex items-center gap-1">🇺🇸 {stadiums.filter((s) => s.cc === "us").length} USA</span>

@@ -105,7 +105,17 @@ export function ThirdPlaceRanking({ thirdPlaceStandings }: ThirdPlaceRankingProp
                        backgroundColor: isQualifying ? "rgba(59, 130, 246, 0.06)" : "transparent",
                      }}
                    >
-                     <td className="py-3.5 text-center" style={{ paddingLeft: "24px", paddingRight: "16px", width: "64px" }}>
+                     <td
+                       className="py-3.5 text-center"
+                       style={{
+                         paddingLeft: "24px",
+                         paddingRight: "16px",
+                         width: "64px",
+                         borderLeft: isQualifying
+                           ? "4px solid #3b82f6"
+                           : "4px solid transparent",
+                       }}
+                     >
                        <span
                          className="inline-flex items-center justify-center w-5 h-5"
                          style={{

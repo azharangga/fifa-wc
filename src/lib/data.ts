@@ -88,7 +88,236 @@ export function organizeGroups(matches: Match[]): GroupData[] {
   return groups;
 }
 
+export function getGuaranteedSeeds(matches: Match[]): Map<string, string> {
+  const resolvedMap = new Map<string, string>();
+  const groupMatches = matches.filter((m) => m.group);
+  if (groupMatches.length === 0) return resolvedMap;
+
+  // Group matches by group name
+  const groupMap = new Map<string, Match[]>();
+  for (const m of groupMatches) {
+    if (!m.group) continue;
+    if (!groupMap.has(m.group)) {
+      groupMap.set(m.group, []);
+    }
+    groupMap.get(m.group)!.push(m);
+  }
+
+  for (const [groupName, gMatches] of groupMap.entries()) {
+    const letter = groupName.replace("Group ", "").trim().toUpperCase(); // e.g. "A"
+    const teams = Array.from(new Set(gMatches.flatMap((m) => [m.team1, m.team2])));
+    if (teams.length < 4) continue;
+
+    const played = gMatches.filter((m) => m.score?.ft);
+    const remaining = gMatches.filter((m) => !m.score?.ft);
+
+    // If no matches played yet, no one is guaranteed
+    if (played.length === 0) continue;
+
+    // Simulate all combinations of remaining matches: Win1, Draw, Win2
+    const outcomes: ("W1" | "D" | "W2")[][] = [];
+    const generate = (index: number, current: ("W1" | "D" | "W2")[]) => {
+      if (index === remaining.length) {
+        outcomes.push(current);
+        return;
+      }
+      generate(index + 1, [...current, "W1"]);
+      generate(index + 1, [...current, "D"]);
+      generate(index + 1, [...current, "W2"]);
+    };
+    generate(0, []);
+
+    // For each team, track their possible final ranks
+    const teamRanks = new Map<string, Set<number>>();
+    for (const t of teams) {
+      teamRanks.set(t, new Set<number>());
+    }
+
+    for (const outcome of outcomes) {
+      const points = new Map<string, number>();
+      const gd = new Map<string, number>();
+      const gf = new Map<string, number>();
+
+      for (const t of teams) {
+        points.set(t, 0);
+        gd.set(t, 0);
+        gf.set(t, 0);
+      }
+
+      // 1. Add played matches
+      for (const m of played) {
+        const [s1, s2] = m.score!.ft;
+        points.set(m.team1, points.get(m.team1)! + (s1 > s2 ? 3 : s1 === s2 ? 1 : 0));
+        points.set(m.team2, points.get(m.team2)! + (s2 > s1 ? 3 : s1 === s2 ? 1 : 0));
+        gd.set(m.team1, gd.get(m.team1)! + (s1 - s2));
+        gd.set(m.team2, gd.get(m.team2)! + (s2 - s1));
+        gf.set(m.team1, gf.get(m.team1)! + s1);
+        gf.set(m.team2, gf.get(m.team2)! + s2);
+      }
+
+      // 2. Add remaining matches (simulated 1-0, 0-1, or 0-0)
+      for (let i = 0; i < remaining.length; i++) {
+        const m = remaining[i];
+        const res = outcome[i];
+        if (res === "W1") {
+          points.set(m.team1, points.get(m.team1)! + 3);
+          gd.set(m.team1, gd.get(m.team1)! + 1);
+          gd.set(m.team2, gd.get(m.team2)! - 1);
+          gf.set(m.team1, gf.get(m.team1)! + 1);
+        } else if (res === "W2") {
+          points.set(m.team2, points.get(m.team2)! + 3);
+          gd.set(m.team2, gd.get(m.team2)! + 1);
+          gd.set(m.team1, gd.get(m.team1)! - 1);
+          gf.set(m.team2, gf.get(m.team2)! + 1);
+        } else {
+          points.set(m.team1, points.get(m.team1)! + 1);
+          points.set(m.team2, points.get(m.team2)! + 1);
+        }
+      }
+
+      // Sort teams to find rank
+      const sortedTeams = [...teams].sort((a, b) => {
+        return (
+          points.get(b)! - points.get(a)! ||
+          gd.get(b)! - gd.get(a)! ||
+          gf.get(b)! - gf.get(a)!
+        );
+      });
+
+      sortedTeams.forEach((team, index) => {
+        teamRanks.get(team)!.add(index + 1);
+      });
+    }
+
+    // See if any team is guaranteed 1st or 2nd
+    for (const t of teams) {
+      const ranks = teamRanks.get(t)!;
+      if (ranks.size === 1) {
+        const rank = Array.from(ranks)[0];
+        if (rank === 1) {
+          resolvedMap.set(`1${letter}`, t);
+        } else if (rank === 2) {
+          resolvedMap.set(`2${letter}`, t);
+        }
+      }
+    }
+  }
+
+  return resolvedMap;
+}
+
 export function organizeKnockout(matches: Match[]): KnockoutRound[] {
+  // 1. Resolve placeholders like 1A, 2B, etc. to mathematically guaranteed teams
+  const resolvedMap = getGuaranteedSeeds(matches);
+
+  // Deep copy matches to avoid mutating the original source
+  const resolvedMatches = matches.map((m) => {
+    // Only copy and resolve if it is a knockout match
+    if (m.group) return m;
+
+    const copy = { ...m };
+
+    // Resolve team1
+    if (resolvedMap.has(copy.team1)) {
+      copy.team1 = resolvedMap.get(copy.team1)!;
+    }
+    // Resolve team2
+    if (resolvedMap.has(copy.team2)) {
+      copy.team2 = resolvedMap.get(copy.team2)!;
+    }
+
+    return copy;
+  });
+
+  // 2. Propagate Wxx and Lxx winners and losers through subsequent rounds
+  const matchByNumber = new Map<number, Match>();
+  for (const m of resolvedMatches) {
+    if (m.matchNumber) {
+      matchByNumber.set(m.matchNumber, m);
+    }
+  }
+
+  // Iterate to resolve parent winners/losers (e.g. W73, L73)
+  for (let pass = 0; pass < 5; pass++) {
+    for (const m of resolvedMatches) {
+      if (m.group) continue;
+
+      // Resolve team1
+      if (resolvedMap.has(m.team1)) {
+        m.team1 = resolvedMap.get(m.team1)!;
+      } else {
+        const wMatch = m.team1.match(/^W(\d+)$/);
+        if (wMatch) {
+          const num = parseInt(wMatch[1], 10);
+          const sourceMatch = matchByNumber.get(num);
+          if (sourceMatch && sourceMatch.score?.ft) {
+            const [s1, s2] = sourceMatch.score.ft;
+            // Determine winner
+            let winner = "";
+            if (s1 > s2) winner = sourceMatch.team1;
+            else if (s1 < s2) winner = sourceMatch.team2;
+            if (winner && !winner.startsWith("W") && !winner.startsWith("L") && !/^[12][A-Z]$/.test(winner)) {
+              m.team1 = winner;
+              resolvedMap.set(`W${num}`, winner);
+            }
+          }
+        }
+        const lMatch = m.team1.match(/^L(\d+)$/);
+        if (lMatch) {
+          const num = parseInt(lMatch[1], 10);
+          const sourceMatch = matchByNumber.get(num);
+          if (sourceMatch && sourceMatch.score?.ft) {
+            const [s1, s2] = sourceMatch.score.ft;
+            let loser = "";
+            if (s1 > s2) loser = sourceMatch.team2;
+            else if (s1 < s2) loser = sourceMatch.team1;
+            if (loser && !loser.startsWith("W") && !loser.startsWith("L") && !/^[12][A-Z]$/.test(loser)) {
+              m.team1 = loser;
+              resolvedMap.set(`L${num}`, loser);
+            }
+          }
+        }
+      }
+
+      // Resolve team2
+      if (resolvedMap.has(m.team2)) {
+        m.team2 = resolvedMap.get(m.team2)!;
+      } else {
+        const wMatch = m.team2.match(/^W(\d+)$/);
+        if (wMatch) {
+          const num = parseInt(wMatch[1], 10);
+          const sourceMatch = matchByNumber.get(num);
+          if (sourceMatch && sourceMatch.score?.ft) {
+            const [s1, s2] = sourceMatch.score.ft;
+            let winner = "";
+            if (s1 > s2) winner = sourceMatch.team1;
+            else if (s1 < s2) winner = sourceMatch.team2;
+            if (winner && !winner.startsWith("W") && !winner.startsWith("L") && !/^[12][A-Z]$/.test(winner)) {
+              m.team2 = winner;
+              resolvedMap.set(`W${num}`, winner);
+            }
+          }
+        }
+        const lMatch = m.team2.match(/^L(\d+)$/);
+        if (lMatch) {
+          const num = parseInt(lMatch[1], 10);
+          const sourceMatch = matchByNumber.get(num);
+          if (sourceMatch && sourceMatch.score?.ft) {
+            const [s1, s2] = sourceMatch.score.ft;
+            let loser = "";
+            if (s1 > s2) loser = sourceMatch.team2;
+            else if (s1 < s2) loser = sourceMatch.team1;
+            if (loser && !loser.startsWith("W") && !loser.startsWith("L") && !/^[12][A-Z]$/.test(loser)) {
+              m.team2 = loser;
+              resolvedMap.set(`L${num}`, loser);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 3. Group the resolved matches by round name
   const roundMap = new Map<string, Match[]>();
   const roundOrder = [
     "Round of 32",
@@ -99,7 +328,7 @@ export function organizeKnockout(matches: Match[]): KnockoutRound[] {
     "Final",
   ];
 
-  for (const match of matches) {
+  for (const match of resolvedMatches) {
     if (match.group) continue;
     if (!roundMap.has(match.round)) {
       roundMap.set(match.round, []);

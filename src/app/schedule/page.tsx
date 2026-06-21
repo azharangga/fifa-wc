@@ -116,7 +116,7 @@ export default function SchedulePage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Filter pills — DESIGN.md pricing-tab style */}
           <div
-            className="flex gap-1.5 p-1 w-fit shrink-0"
+            className="flex gap-1.5 p-1 w-full md:w-fit overflow-x-auto md:overflow-visible shrink-0"
             style={{ backgroundColor: "var(--background)", borderRadius: "100px", border: "1px solid var(--border)" }}
           >
             {([
@@ -141,13 +141,15 @@ export default function SchedulePage() {
                     color: isActive ? "var(--foreground)" : "var(--muted-foreground)",
                     borderRadius: "100px",
                     padding: "8px 14px",
-                    fontSize: "14px",
+                    fontSize: "13px",
                     fontWeight: 500,
                     letterSpacing: "-0.14px",
                     lineHeight: 1,
                     border: "none",
                     cursor: "pointer",
                     fontFeatureSettings: '"cv11"',
+                    whiteSpace: "nowrap",
+                    flexShrink: 0,
                   }}
                 >
                   <span>{f.label}</span>

@@ -98,7 +98,19 @@ export function GroupTable({
                         : "transparent",
                     }}
                   >
-                    <td className="py-2.5 text-center" style={{ paddingLeft: "16px", paddingRight: "16px", width: "48px" }}>
+                    <td
+                      className="py-2.5 text-center"
+                      style={{
+                        paddingLeft: "16px",
+                        paddingRight: "16px",
+                        width: "48px",
+                        borderLeft: isQualifying
+                          ? "4px solid #22c55e"
+                          : idx === 2
+                          ? "4px solid #3b82f6"
+                          : "4px solid transparent",
+                      }}
+                    >
                       <span
                         className="inline-flex items-center justify-center w-5 h-5"
                         style={{

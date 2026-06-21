@@ -282,22 +282,68 @@ export function KnockoutBracket({ knockouts, loading = false }: { knockouts: Kno
 
   // Symmetrically split brackets (Left Wing vs Right Wing)
   const leftWing = useMemo(() => {
+    if (loading) {
+      return {
+        r32: r32.slice(0, 8),
+        r16: r16.slice(0, 4),
+        qf: qf.slice(0, 2),
+        sf: sf.slice(0, 1),
+      };
+    }
+    
+    const findM = (num: number, list: Match[]) => list.find(m => m.matchNumber === num) || mockMatches(1)[0];
+
     return {
-      r32: r32.slice(0, 8),
-      r16: r16.slice(0, 4),
-      qf: qf.slice(0, 2),
-      sf: sf.slice(0, 1),
+      r32: [
+        findM(74, r32), findM(77, r32),
+        findM(73, r32), findM(75, r32),
+        findM(83, r32), findM(84, r32),
+        findM(81, r32), findM(82, r32)
+      ],
+      r16: [
+        findM(89, r16), findM(90, r16),
+        findM(93, r16), findM(94, r16)
+      ],
+      qf: [
+        findM(97, qf), findM(98, qf)
+      ],
+      sf: [
+        findM(101, sf)
+      ]
     };
-  }, [r32, r16, qf, sf]);
+  }, [r32, r16, qf, sf, loading]);
 
   const rightWing = useMemo(() => {
+    if (loading) {
+      return {
+        r32: r32.slice(8),
+        r16: r16.slice(4),
+        qf: qf.slice(2),
+        sf: sf.slice(1),
+      };
+    }
+
+    const findM = (num: number, list: Match[]) => list.find(m => m.matchNumber === num) || mockMatches(1)[0];
+
     return {
-      r32: r32.slice(8),
-      r16: r16.slice(4),
-      qf: qf.slice(2),
-      sf: sf.slice(1),
+      r32: [
+        findM(76, r32), findM(78, r32),
+        findM(79, r32), findM(80, r32),
+        findM(86, r32), findM(88, r32),
+        findM(85, r32), findM(87, r32)
+      ],
+      r16: [
+        findM(91, r16), findM(92, r16),
+        findM(95, r16), findM(96, r16)
+      ],
+      qf: [
+        findM(99, qf), findM(100, qf)
+      ],
+      sf: [
+        findM(102, sf)
+      ]
     };
-  }, [r32, r16, qf, sf]);
+  }, [r32, r16, qf, sf, loading]);
 
   // Helper to trace team advancement highlighting
   const isPathActive = (matchFrom?: Match, matchTo?: Match) => {
@@ -444,10 +490,10 @@ export function KnockoutBracket({ knockouts, loading = false }: { knockouts: Kno
     <div className="space-y-8">
       {/* Navigation Switcher */}
       <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
-        <div className="flex bg-[var(--card)] p-1 rounded-xl border border-[var(--border)]">
+        <div className="flex bg-[var(--card)] p-1 rounded-xl border border-[var(--border)] overflow-x-auto">
           <button
             onClick={() => setActiveTab("bracket")}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
             style={{
               backgroundColor: activeTab === "bracket" ? "var(--foreground)" : "transparent",
               color: activeTab === "bracket" ? "var(--background)" : "var(--muted-foreground)",
@@ -458,7 +504,7 @@ export function KnockoutBracket({ knockouts, loading = false }: { knockouts: Kno
           </button>
           <button
             onClick={() => setActiveTab("list")}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
             style={{
               backgroundColor: activeTab === "list" ? "var(--foreground)" : "transparent",
               color: activeTab === "list" ? "var(--background)" : "var(--muted-foreground)",
