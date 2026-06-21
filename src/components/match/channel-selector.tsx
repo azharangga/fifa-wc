@@ -14,12 +14,14 @@ interface ChannelSelectorProps {
   channels: StreamChannel[];
   selectedChannel: StreamChannel;
   onSelectChannel: (channel: StreamChannel) => void;
+  currentResolution?: string;
 }
 
 export function ChannelSelector({
   channels,
   selectedChannel,
   onSelectChannel,
+  currentResolution,
 }: ChannelSelectorProps) {
   const { t } = useTranslation();
 
@@ -61,7 +63,7 @@ export function ChannelSelector({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <p className="truncate" style={{ fontSize: "14px", fontWeight: 700, color: "var(--foreground)", letterSpacing: "-0.14px" }}>
+                     <p className="truncate" style={{ fontSize: "14px", fontWeight: 700, color: "var(--foreground)", letterSpacing: "-0.14px" }}>
                       {channel.name}
                     </p>
                     {isActive && (
@@ -79,7 +81,9 @@ export function ChannelSelector({
                       </span>
                     )}
                   </div>
-                  <p style={{ fontSize: "12px", color: "var(--muted-foreground)", marginTop: "2px" }}>{channel.quality}</p>
+                  <p style={{ fontSize: "12px", color: "var(--muted-foreground)", marginTop: "2px" }}>
+                    {isActive && currentResolution && currentResolution !== "HD" ? `HD ${currentResolution}` : channel.quality}
+                  </p>
                 </div>
               </button>
             );

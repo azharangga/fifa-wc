@@ -18,6 +18,7 @@ import {
   SkipForward,
   SkipBack,
   MapPin,
+  PictureInPicture2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
@@ -25,7 +26,17 @@ import { useTranslation } from "@/components/layout/language-provider";
 
 const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
-export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: string; venue?: string }) {
+export function HLSPlayer({
+  url,
+  channelId,
+  channelName,
+  onResolutionChange,
+}: {
+  url: string;
+  channelId: string;
+  channelName?: string;
+  onResolutionChange?: (res: string) => void;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,7 +56,13 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
+  const [currentResolution, setCurrentResolution] = useState<string>("HD");
   const { t } = useTranslation();
+
+  // Sync resolution to parent callback
+  useEffect(() => {
+    onResolutionChange?.(currentResolution);
+  }, [currentResolution, onResolutionChange]);
 
   // Auto-hide controls after 3s when playing
   useEffect(() => {
@@ -64,12 +81,15 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
     setIsLoading(true);
     setError(null);
     setIsPlaying(false);
+    setCurrentResolution("HD");
   }
 
   // Initialize HLS
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+
+    let onLoadedMetadata: (() => void) | null = null;
 
     if (hlsRef.current) {
       hlsRef.current.destroy();
@@ -102,11 +122,27 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setIsLoading(false);
+        const levels = hls.levels;
+        if (levels && levels.length > 0) {
+          const defaultLevel = hls.currentLevel >= 0 ? hls.currentLevel : 0;
+          const level = levels[defaultLevel];
+          if (level && level.height) {
+            setCurrentResolution(`${level.height}p`);
+          }
+        }
         video.play().catch(() => {
           video.muted = true;
           setIsMuted(true);
           video.play().catch(() => {});
         });
+      });
+
+      hls.on(Hls.Events.LEVEL_SWITCHED, (_event, data) => {
+        const levels = hls.levels;
+        const level = levels[data.level];
+        if (level && level.height) {
+          setCurrentResolution(`${level.height}p`);
+        }
       });
 
       hls.on(Hls.Events.ERROR, (_event, data) => {
@@ -131,6 +167,14 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
       video.src = url;
       video.muted = false;
       setIsLoading(false);
+
+      onLoadedMetadata = () => {
+        if (video.videoHeight) {
+          setCurrentResolution(`${video.videoHeight}p`);
+        }
+      };
+      video.addEventListener("loadedmetadata", onLoadedMetadata);
+
       video.play().catch(() => {
         video.muted = true;
         setIsMuted(true);
@@ -147,6 +191,9 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
+      }
+      if (video && onLoadedMetadata) {
+        video.removeEventListener("loadedmetadata", onLoadedMetadata);
       }
     };
   }, [url, channelId]);
@@ -210,11 +257,19 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
     const onPlaying = () => {
       setIsBuffering(false);
       setIsPlaying(true);
+      if (video.videoHeight) {
+        setCurrentResolution(`${video.videoHeight}p`);
+      }
     };
     const onSeeking = () => setIsBuffering(true);
     const onSeeked = () => {
       setIsBuffering(false);
       checkLiveEdge();
+    };
+    const onResize = () => {
+      if (video.videoHeight) {
+        setCurrentResolution(`${video.videoHeight}p`);
+      }
     };
 
     video.addEventListener("timeupdate", onTimeUpdate);
@@ -223,6 +278,12 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
     video.addEventListener("playing", onPlaying);
     video.addEventListener("seeking", onSeeking);
     video.addEventListener("seeked", onSeeked);
+    video.addEventListener("resize", onResize);
+
+    // Initial check
+    if (video.videoHeight) {
+      setCurrentResolution(`${video.videoHeight}p`);
+    }
 
     return () => {
       video.removeEventListener("timeupdate", onTimeUpdate);
@@ -231,6 +292,7 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
       video.removeEventListener("playing", onPlaying);
       video.removeEventListener("seeking", onSeeking);
       video.removeEventListener("seeked", onSeeked);
+      video.removeEventListener("resize", onResize);
     };
   }, [checkLiveEdge]);
 
@@ -405,7 +467,6 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
         className="w-full h-full bg-black object-contain cursor-pointer"
         playsInline
         autoPlay
-        muted
         onClick={togglePlay}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
@@ -528,14 +589,14 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
                 <span>{t("liveIndicator")}</span>
               </button>
             )}
-            <Badge variant="outline" className="text-[10px] font-bold text-white/70 border-white/15 rounded-md h-6 px-1.5">
-              HD
+            <Badge variant="outline" className="text-[10px] font-bold text-white/70 border-white/15 rounded-md h-6 px-1.5 uppercase">
+              {currentResolution === "HD" ? "HD" : `HD • ${currentResolution}`}
             </Badge>
           </div>
-          {venue && (
+          {channelName && (
             <div className="flex items-center gap-1.5 text-white/80 text-[10px] font-semibold bg-black/45 px-2 py-0.5 rounded border border-white/10 backdrop-blur-sm select-none">
-              <MapPin className="h-3 w-3 text-white/70 shrink-0" />
-              <span>{venue}</span>
+              <Tv className="h-3 w-3 text-white/70 shrink-0" />
+              <span>{channelName}</span>
             </div>
           )}
         </div>
@@ -575,7 +636,7 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
                 >
                   <VolumeIcon className="h-4 w-4" />
                 </button>
-                <div className="relative w-0 group-hover/volume:w-20 overflow-hidden transition-all duration-300">
+                <div className="relative w-16 md:w-0 md:group-hover/volume:w-20 overflow-hidden transition-all duration-300 flex items-center h-8">
                   <input
                     type="range"
                     min="0"
@@ -583,7 +644,7 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
                     step="0.05"
                     value={isMuted ? 0 : volume}
                     onChange={handleVolumeChange}
-                    className="w-20 h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-white"
+                    className="w-16 md:w-20 h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-white"
                     style={{ accentColor: "white" }}
                   />
                 </div>
@@ -647,7 +708,7 @@ export function HLSPlayer({ url, channelId, venue }: { url: string; channelId: s
                     onClick={togglePiP}
                     className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
                   >
-                    <Tv className="h-4 w-4" />
+                    <PictureInPicture2 className="h-4 w-4" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>{t("pictureInPicture")}</TooltipContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, use, useEffect } from "react";
 import { Loader2, ArrowLeft, Calendar, Clock, MapPin } from "lucide-react";
 import Link from "next/link";
 import { HLSPlayer } from "@/components/match/hls-player";
@@ -16,10 +16,12 @@ import { useTranslation } from "@/components/layout/language-provider";
 import { MatchDetailSkeleton } from "@/components/layout/loading-state";
 
 const STREAM_CHANNELS: StreamChannel[] = [
-  { id: "rtbgo", name: "RTB Go", quality: "HD 720p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTBGO || "https://d1211whpimeups.cloudfront.net/smil:rtbgo/chunklist_b4096000_slENG.m3u8" },
-  { id: "rtb2", name: "RTB 2", quality: "HD 720p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTB2 || "https://d1211whpimeups.cloudfront.net/smil:rtb2/playlist.m3u8" },
-  { id: "vtv3", name: "VTV3", quality: "HD", url: process.env.NEXT_PUBLIC_STREAM_URL_VTV3 || "https://live.fptplay53.net/live/media/vtv3/live247-hls-avc/index.m3u8" },
-  { id: "vtv6", name: "VTV6", quality: "HD", url: process.env.NEXT_PUBLIC_STREAM_URL_VTV6 || "https://live-a.fptplay53.net/live/media/vtv6/live247-hls-avc/index.m3u8" },
+  { id: "rtbgo", name: "RTB Go", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTBGO || "https://d1211whpimeups.cloudfront.net/smil:rtbgo/chunklist_b4096000_slENG.m3u8" },
+  { id: "tvri", name: "TVRI Nasional", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_TVRI || "https://ott-balancer.tvri.go.id/live/eds/Nasional/hls/Nasional.m3u8" },
+  { id: "rtb1", name: "RTB 1", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTB1 || "https://d1211whpimeups.cloudfront.net/smil:rtb1/playlist.m3u8" },
+  { id: "rtb2", name: "RTB 2", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_RTB2 || "https://d1211whpimeups.cloudfront.net/smil:rtb2/playlist.m3u8" },
+  { id: "vtv3", name: "VTV3", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_VTV3 || "https://live.fptplay53.net/live/media/vtv3/live247-hls-avc/index.m3u8" },
+  { id: "vtv6", name: "VTV6", quality: "HD 1080p", url: process.env.NEXT_PUBLIC_STREAM_URL_VTV6 || "https://live-a.fptplay53.net/live/media/vtv6/live247-hls-avc/index.m3u8" },
 ];
 
 import { useWorldCupData } from "@/hooks/use-world-cup-data";
@@ -28,7 +30,12 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   const { id } = use(params);
   const { data, loading, error } = useWorldCupData();
   const [selectedChannel, setSelectedChannel] = useState<StreamChannel>(STREAM_CHANNELS[0]);
+  const [currentResolution, setCurrentResolution] = useState<string>("HD");
   const { t, lang } = useTranslation();
+
+  useEffect(() => {
+    setCurrentResolution("HD");
+  }, [selectedChannel]);
 
   const match = data?.matches.find((m) => m.id === id);
 
@@ -119,7 +126,12 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
 
         {/* Player */}
         <div style={{ borderRadius: "20px", overflow: "hidden", boxShadow: "0 25px 50px rgba(0,0,0,0.5)" }}>
-          <HLSPlayer url={selectedChannel.url} channelId={selectedChannel.id} venue={match.ground} />
+          <HLSPlayer
+            url={selectedChannel.url}
+            channelId={selectedChannel.id}
+            channelName={selectedChannel.name}
+            onResolutionChange={setCurrentResolution}
+          />
         </div>
 
         {/* Two-column layout */}
@@ -131,6 +143,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               channels={STREAM_CHANNELS}
               selectedChannel={selectedChannel}
               onSelectChannel={setSelectedChannel}
+              currentResolution={currentResolution}
             />
           </div>
 
