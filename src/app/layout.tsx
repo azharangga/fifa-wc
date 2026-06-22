@@ -9,6 +9,7 @@ import { MobileNavigation } from "@/components/layout/navigation";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
+import { MainContent } from "@/components/layout/main-content";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -67,7 +68,7 @@ export default function RootLayout({
             <Header />
 
             {/* ─── Main Content ────────────────────────────────────────────────── */}
-            <main className="flex-1 w-full pt-[56px] pb-20 md:pb-0">{children}</main>
+            <MainContent>{children}</MainContent>
 
             <Footer />
 

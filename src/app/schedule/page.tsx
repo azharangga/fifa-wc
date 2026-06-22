@@ -410,9 +410,9 @@ export default function SchedulePage() {
 function MatchList({ matches, lang }: { matches: Match[]; lang: string }) {
   const isId = lang === "id";
   return (
-    <div className="border border-[var(--border)] rounded-2xl overflow-hidden bg-[var(--card)] shadow-xs">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse" style={{ minWidth: "750px" }}>
+    <div className="border border-[var(--border)] rounded-2xl bg-[var(--card)] shadow-xs w-full" style={{ overflow: "hidden" }}>
+      <div style={{ overflowX: "auto", display: "block", width: "100%", WebkitOverflowScrolling: "touch" }}>
+        <table className="text-left border-collapse" style={{ width: "100%", minWidth: "750px", display: "table" }}>
           <thead>
             <tr
               className="border-b border-[var(--border)] text-[11px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider"

@@ -58,7 +58,6 @@ export function MatchCard({ match }: { match: Match }) {
             <div className="flex items-center gap-1 min-w-0 mr-2" style={{ color: "#999999", fontSize: "10px", fontWeight: 500, lineHeight: "1" }}>
               <MapPin className="h-3 w-3 shrink-0" style={{ display: "block" }} />
               <span className="truncate" style={{ lineHeight: "1" }}>
-                {match.matchNumber ? `Match ${match.matchNumber} • ` : ""}
                 {match.ground}
                 {match.hostCity ? `, ${match.hostCity}` : ""}
               </span>

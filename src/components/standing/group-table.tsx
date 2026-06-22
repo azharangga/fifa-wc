@@ -19,7 +19,7 @@ export function GroupTable({
 
   return (
     <div
-      className="flex flex-col justify-between h-full"
+      className="flex flex-col justify-between h-full w-full max-w-full"
       style={{
         backgroundColor: "var(--card)",
         border: "1px solid var(--border)",
@@ -54,9 +54,9 @@ export function GroupTable({
       </div>
 
       {/* Table */}
-      <div style={{ padding: "12px 0" }}>
-        <div className="overflow-x-auto">
-          <table className="w-full" style={{ minWidth: "440px" }}>
+      <div style={{ padding: "12px 0", overflow: "hidden" }} className="w-full">
+        <div style={{ overflowX: "auto", display: "block", width: "100%", WebkitOverflowScrolling: "touch" }}>
+          <table style={{ width: "100%", minWidth: "480px", display: "table" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)", color: "var(--muted-foreground)", fontSize: "12px", fontWeight: 500 }}>
                 <th className="text-center pb-2" style={{ paddingLeft: "16px", paddingRight: "16px", width: "48px" }}>#</th>

@@ -58,16 +58,17 @@ export function ThirdPlaceRanking({ thirdPlaceStandings }: ThirdPlaceRankingProp
       </div>
 
       <div
+        className="w-full"
         style={{
           backgroundColor: "var(--card)",
           border: "1px solid var(--border)",
           borderRadius: "20px",
-          overflow: "hidden",
           padding: "24px 0",
+          overflow: "hidden",
         }}
       >
-        <div className="overflow-x-auto">
-          <table className="w-full" style={{ minWidth: "550px" }}>
+        <div style={{ overflowX: "auto", display: "block", width: "100%", WebkitOverflowScrolling: "touch" }}>
+          <table style={{ width: "100%", minWidth: "550px", display: "table" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)", color: "var(--muted-foreground)", fontSize: "12px", fontWeight: 500 }}>
                 <th className="text-center pb-3" style={{ paddingLeft: "24px", paddingRight: "16px", width: "64px" }}>#</th>

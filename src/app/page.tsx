@@ -347,6 +347,7 @@ export default function Home() {
                 <StadiumsTableSkeleton />
               ) : (
                 <div
+                  className="w-full"
                   style={{
                     backgroundColor: "var(--card)",
                     borderRadius: "20px",
@@ -354,8 +355,8 @@ export default function Home() {
                     overflow: "hidden",
                   }}
                 >
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                  <div style={{ overflowX: "auto", display: "block", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                    <table className="text-sm" style={{ width: "100%", minWidth: "500px", display: "table" }}>
                       <thead>
                         <tr
                           className="text-xs uppercase tracking-wider"
